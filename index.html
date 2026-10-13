@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Box Box · Günlük F1 Grid</title>
+<meta name="description" content="Her gün yeni bir F1 pilot bulmacası. Satır ve sütun şartlarını sağlayan pilotu bul, serini koru.">
+<meta property="og:title" content="Box Box · Günlük F1 Grid">
+<meta property="og:description" content="Her gün yeni bir F1 pilot bulmacası. Tüm Zamanlar ve 2000 Sonrası modları.">
+<meta name="theme-color" content="#121316">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23121316'/%3E%3Cpath d='M6 6h5v5H6zM16 6h5v5h-5zM11 11h5v5h-5zM21 11h5v5h-5zM6 16h5v5H6zM16 16h5v5h-5zM11 21h5v5h-5zM21 21h5v5h-5z' fill='%23f1f1f3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700;900&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: üstte sabit başlık + sekmeler, altında tek sütunlu içerik (max 560px). Oyun ekranı 4x4 grid. Tek koyu tema: gece yarışı. */
+:root{
+  color-scheme: dark;
+  --bg:#121316;
+  --panel:#1a1b1f;
+  --cell:#1f2025;
+  --cell-hi:#292a30;
+  --sunk:#0f1012;
+  --line:#2d2e34;
+  --fg:#f1f1f3;
+  --muted:#8b8d96;
+  --dim:#5c5e66;
+  --red:#e10600;
+  --ok:#3ccf6e;
+  --bad:#ff5a4f;
+  --display:"Titillium Web","Arial Narrow",system-ui,sans-serif;
+  --label:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);margin:0;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:rgba(18,19,22,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top::before{content:"";display:block;height:5px;background:repeating-conic-gradient(var(--fg) 0 25%,var(--bg) 0 50%) 0 0/10px 10px;opacity:.85}
+.top-in{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:10px 0;display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font:900 22px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:baseline;gap:8px}
+.logo b{color:var(--red)}
+.logo small{font:600 12px/1 var(--label);color:var(--muted);letter-spacing:.08em}
+.me{display:flex;align-items:center;gap:8px;font:600 13px/1 var(--label);color:var(--muted);letter-spacing:.04em;min-width:0}
+.me img{width:26px;height:26px;border-radius:50%;border:1px solid var(--line)}
+.me span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.streak-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:var(--cell);border:1px solid var(--line);font:700 13px/1 var(--display);color:var(--fg)}
+.streak-pill svg{width:14px;height:14px;fill:var(--red)}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{flex:0 0 auto;font:700 14px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:10px 12px 11px;border-bottom:3px solid transparent}
+nav a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--red)}
+nav a:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+main{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;display:flex;flex-direction:column;gap:16px}
+.view[hidden]{display:none}
+.view{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;gap:14px}
+.h2{font:900 26px/1.05 var(--display);letter-spacing:.01em;margin:0;text-wrap:balance}
+.eyebrow{font:700 12px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.p{font:400 15px/1.55 var(--display);color:#cfd0d6;margin:0;max-width:62ch}
+.muted{color:var(--muted)}
+.seg{display:flex;gap:4px;padding:4px;background:var(--sunk);border:1px solid var(--line);border-radius:999px}
+.seg button{flex:1;font:700 13.5px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:none;border:0;border-radius:999px;padding:10px 10px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--red);color:#fff}
+.seg.alt button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.seg button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.controls{display:flex;flex-direction:column;gap:8px}
+.gamehead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.gamehead .t{font:900 20px/1 var(--display);letter-spacing:.02em}
+.gamehead .t span{color:var(--red)}
+.gamehead .d{font:600 13px/1 var(--label);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.tag{font:700 11px/1 var(--label);letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.tag.arch{border-color:#6a5a2a;color:#e3c46a}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.h,.c{aspect-ratio:1/1;border-radius:13px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:5px;position:relative}
+.h{background:var(--cell);border:1px solid var(--line)}
+.h .lbl{font:700 clamp(9.5px,2.75vw,13.5px)/1.06 var(--label);letter-spacing:.03em;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
+.h .sub{font:500 clamp(8px,2vw,10px)/1.1 var(--label);color:var(--muted);letter-spacing:.02em}
+.flag{font-size:clamp(24px,7.5vw,38px);line-height:1}
+.badge{min-width:44px;height:28px;padding:0 7px;border-radius:7px;display:flex;align-items:center;justify-content:center;font:900 12.5px/1 var(--display);letter-spacing:.05em}
+.ico{width:clamp(24px,7vw,34px);height:clamp(24px,7vw,34px);stroke:var(--fg);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.corner{background:repeating-conic-gradient(#222327 0 25%,#191a1d 0 50%) 0 0/14px 14px}
+.corner .lbl{font:900 clamp(10px,2.9vw,14px)/1 var(--display);letter-spacing:.05em}
+.corner .num{font:700 clamp(10px,2.6vw,13px)/1 var(--display);color:var(--red);letter-spacing:.05em}
+.c{background:var(--sunk);border:1px solid var(--line);cursor:pointer;color:var(--dim);font-size:28px}
+.c:hover,.c:focus-visible{background:var(--cell-hi);outline:none;border-color:#4a4b52}
+.c .cnt{position:absolute;top:6px;right:8px;font:600 11px/1 var(--label);color:var(--dim)}
+.c.filled{border:2px solid var(--ok);background:var(--cell);color:var(--fg);cursor:default}
+.c.filled.rev{cursor:pointer}
+.c.filled::after{content:"✓";position:absolute;top:5px;right:5px;width:19px;height:19px;border-radius:50%;background:var(--ok);color:#0b2414;font:900 12px/19px var(--display);text-align:center}
+.c.miss{border:2px dashed #55474a;font:600 12px/1.1 var(--label);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.av{width:clamp(28px,8.5vw,44px);height:clamp(28px,8.5vw,44px);border-radius:50%;display:flex;align-items:center;justify-content:center;font:900 clamp(10px,3vw,15px)/1 var(--display);background:#2c2d33;color:var(--fg);border:2px solid #4a4b52}
+.c .nm{font:700 clamp(9.5px,2.7vw,13px)/1.08 var(--display);color:var(--fg);overflow-wrap:anywhere}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.guesses{font:700 15px/1 var(--display);font-variant-numeric:tabular-nums}
+.guesses b{color:var(--red);font-size:20px}
+.btn{font:700 13px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;background:var(--cell-hi);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:11px 16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:#55575f}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.hint{font:500 13.5px/1.45 var(--label);color:var(--muted);letter-spacing:.02em;margin:0}
+.end{display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;padding-top:4px;border-top:1px solid var(--line)}
+.end .score{font:900 46px/1 var(--display);font-variant-numeric:tabular-nums;margin-top:10px}
+.end .score small{font-size:18px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.today{display:grid;grid-template-columns:auto repeat(3,1fr);gap:6px;align-items:center}
+.today .rl{font:700 12px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-right:4px}
+.chip{font:700 13px/1 var(--display);font-variant-numeric:tabular-nums;border-radius:9px;padding:9px 6px;text-align:center;background:var(--sunk);border:1px solid var(--line);color:var(--muted);cursor:pointer}
+.chip.done{background:var(--cell);color:var(--fg);border-color:#4a4b52}
+.chip.perfect{border:2px solid var(--ok);color:var(--fg)}
+.chip.prog{border-style:dashed;color:var(--fg)}
+.chip:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.chip small{display:block;font:600 10px/1 var(--label);letter-spacing:.08em;color:var(--muted);margin-top:3px;text-transform:uppercase}
+.note{font:500 13px/1.45 var(--label);letter-spacing:.02em;color:var(--muted);background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+/* stats */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kpi{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:12px}
+.kpi .v{font:900 34px/1 var(--display);font-variant-numeric:tabular-nums}
+.kpi .k{font:700 12px/1.2 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.kpi.hero{grid-column:1/-1;display:flex;align-items:center;gap:14px}
+.kpi.hero .v{font-size:56px;color:var(--fg)}
+.kpi.hero svg{width:44px;height:44px;fill:var(--red);flex:0 0 auto}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .dh{font:700 11px/1 var(--label);letter-spacing:.08em;color:var(--dim);text-align:center;padding-bottom:2px}
+.cal .day{aspect-ratio:1/1;border-radius:8px;border:1px solid var(--line);background:var(--sunk);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0}
+.cal .day .dn{font:600 10px/1 var(--label);color:var(--dim)}
+.cal .day .ds{font:900 13px/1 var(--display);font-variant-numeric:tabular-nums}
+.cal .day.on{background:var(--cell);border-color:#4a4b52}
+.cal .day.on .dn{color:var(--muted)}
+.cal .day.full{border:2px solid var(--ok)}
+.cal .day.today{outline:2px solid var(--red);outline-offset:1px}
+.cal .day.blank{visibility:hidden}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font:600 12px/1.3 var(--label);color:var(--muted);letter-spacing:.03em}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:5px;background:var(--cell);border:1px solid #4a4b52}
+.legend i.f{border:2px solid var(--ok)}
+/* archive */
+.arch{display:flex;flex-direction:column;gap:8px}
+.aday{display:grid;grid-template-columns:76px 1fr;gap:8px;align-items:center;background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:10px}
+.aday .ad{font:900 16px/1 var(--display)}
+.aday .ad small{display:block;font:600 11px/1.2 var(--label);letter-spacing:.06em;color:var(--muted);margin-top:4px;text-transform:uppercase}
+.aday .chips{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.aday .chip{padding:8px 2px;font-size:12px}
+.ahead{display:grid;grid-template-columns:76px 1fr;gap:8px;padding:0 10px}
+.ahead .chips{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;font:700 11px/1 var(--label);letter-spacing:.08em;color:var(--muted);text-transform:uppercase;text-align:center}
+/* leaderboard */
+table.lb{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.lbwrap{overflow-x:auto}
+table.lb th{font:700 11.5px/1 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.lb th:nth-child(2){text-align:left}
+table.lb td{padding:10px 6px;border-bottom:1px solid #23242a;text-align:right;font:700 15px/1.2 var(--display)}
+table.lb td:first-child{color:var(--muted);width:28px;text-align:left}
+table.lb td.nm{text-align:left;font-weight:600}
+table.lb td.nm div{display:flex;align-items:center;gap:8px;min-width:0}
+table.lb td.nm img{width:24px;height:24px;border-radius:50%}
+table.lb tr.mine td{background:rgba(225,6,0,.08)}
+table.lb tr.mine td.nm::after{content:" (sen)";color:var(--muted);font-weight:500;font-size:13px}
+.empty{font:500 14px/1.5 var(--label);color:var(--muted);text-align:center;padding:18px 8px}
+/* how to */
+ol.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+ol.rules li{font:400 15px/1.5 var(--display);color:#cfd0d6}
+.catlist{display:grid;grid-template-columns:1fr;gap:6px}
+.catlist div{display:flex;justify-content:space-between;gap:12px;font:500 14px/1.35 var(--label);letter-spacing:.02em;border-bottom:1px solid #23242a;padding:7px 0}
+.catlist div b{font-weight:700;color:var(--fg);flex:0 0 auto}
+.catlist div span{color:var(--muted);text-align:right}
+a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px}
+/* sheet */
+.sheet{position:fixed;inset:0;background:rgba(5,5,7,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:30;display:flex;justify-content:center;align-items:flex-start;padding:calc(env(safe-area-inset-top,0px) + 56px) 16px 16px}
+.sheet-card{width:100%;max-width:480px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:calc(100% - 20px)}
+.sheet-head{display:flex;align-items:center;gap:10px}
+.sheet-head .t{flex:1;min-width:0;font:700 15px/1.2 var(--label);letter-spacing:.05em;text-transform:uppercase}
+.sheet-head .t span{color:var(--red)}
+.x{background:none;border:0;color:var(--muted);font-size:26px;line-height:1;cursor:pointer;padding:2px 6px}
+#q{width:100%;font:600 17px/1 var(--display);color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:14px;outline:none}
+#q:focus{border-color:var(--red)}
+#sug{list-style:none;margin:0;padding:0;overflow-y:auto;border-radius:12px;border:1px solid var(--line);background:#15161a}
+#sug:empty{display:none}
+#sug li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #23242a;cursor:pointer;font-weight:600;font-size:15.5px}
+#sug li:last-child{border-bottom:0}
+#sug li:hover,#sug li.act{background:var(--cell-hi)}
+#sug li small{color:var(--muted);font:500 13px/1 var(--label);letter-spacing:.04em;white-space:nowrap}
+#sug li.used{opacity:.4;cursor:not-allowed}
+#sug li.ans{cursor:default}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);background:#2a2b31;border:1px solid var(--line);color:var(--fg);padding:11px 16px;border-radius:12px;font:600 14px/1.3 var(--display);z-index:40;max-width:calc(100% - 32px);text-align:center}
+.toast.bad{border-color:var(--bad)}
+.foot{font:500 12px/1.5 var(--label);color:var(--dim);text-align:center;letter-spacing:.03em;margin:0}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+.btn.sm{padding:8px 12px;font-size:12px}
+.mebtn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;cursor:pointer;font:600 13px/1 var(--label);color:var(--fg);letter-spacing:.03em;min-width:0}
+.mebtn img{width:24px;height:24px;border-radius:50%}
+.mebtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.menu{position:fixed;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;min-width:180px}
+.menu button{background:none;border:0;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;font:600 14px/1 var(--display)}
+.menu button:hover{background:var(--cell-hi)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font:700 12px/1 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field input{font:600 17px/1 var(--display);color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:13px;outline:none}
+.field input:focus{border-color:var(--red)}
+.err{font:600 13px/1.4 var(--label);color:var(--bad);margin:0}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:0;border-radius:999px;padding:13px 18px;font:700 15px/1 var(--display);cursor:pointer}
+.gbtn svg{width:18px;height:18px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="logo">Box<b>Box</b><small>F1 PİLOT BULMACASI</small></div>
+      <div class="me"><span class="streak-pill" title="Günlük seri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2s1 4-2 7-4 5-2 9c-3-1-5-4-4-8 1-3 4-5 4-8 2 1 3 3 3 5 1-2 1-3 1-5z"/><path d="M14 22c3 0 6-2 6-6 0-3-2-5-3-7 0 3-1 4-3 5 1-2 0-4-1-5-1 3-4 5-4 8 0 3 2 5 5 5z"/></svg><span id="pillStreak">0</span></span><button class="btn sm" id="loginBtn" hidden>Giriş yap</button><button class="mebtn" id="meBtn" hidden aria-haspopup="true"><img id="meAv" alt="" hidden><span id="meName"></span></button></div>
+    </div>
+    <nav aria-label="Bölümler">
+      <a href="#oyna" data-v="oyna">Oyna</a>
+      <a href="#arsiv" data-v="arsiv">Arşiv</a>
+      <a href="#istatistik" data-v="istatistik">İstatistik</a>
+      <a href="#siralama" data-v="siralama">Sıralama</a>
+      <a href="#nasil" data-v="nasil">Nasıl oynanır</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- PLAY -->
+  <section class="view" id="v-oyna">
+    <div class="card">
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Dönem">
+          <button data-mode="all" aria-pressed="true">Tüm Zamanlar</button>
+          <button data-mode="mod" aria-pressed="false">2000 Sonrası</button>
+        </div>
+        <div class="seg alt" role="group" aria-label="Zorluk">
+          <button data-diff="1" aria-pressed="false">Basit</button>
+          <button data-diff="2" aria-pressed="true">Orta</button>
+          <button data-diff="3" aria-pressed="false">Zor</button>
+        </div>
+      </div>
+      <div class="gamehead">
+        <div><div class="t" id="gTitle"></div></div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="tag arch" id="archTag" hidden>Arşiv · seriye sayılmaz</span><span class="d" id="gDate"></span></div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="bar">
+        <div class="guesses">Kalan tahmin <b id="gLeft">0</b></div>
+        <div class="row"><button class="btn" id="backToday" hidden>Bugüne dön</button><button class="btn" id="giveUp">Pes et</button></div>
+      </div>
+      <div class="end" id="end" hidden>
+        <div class="score" id="score"></div>
+        <p class="hint" id="endMsg"></p>
+        <div class="row"><button class="btn" id="share">Sonucu kopyala</button><button class="btn primary" id="nextGame">Sıradaki grid</button></div>
+        <p class="hint">Kutulara dokunarak tüm doğru cevapları görebilirsin.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Bugünün gridleri</div>
+      <div class="today" id="todayChips"></div>
+      <p class="hint" id="syncNote"></p>
+    </div>
+  </section>
+
+  <!-- ARCHIVE -->
+  <section class="view" id="v-arsiv" hidden>
+    <div><div class="eyebrow">Arşiv</div><h1 class="h2">Geçmiş günlerin gridleri</h1></div>
+    <p class="p">Kaçırdığın günleri buradan oynayabilirsin. Arşivde oynanan gridler istatistiğe yazılır ama günlük seriye sayılmaz.</p>
+    <div class="ahead"><span></span><div class="chips"><span>Tüm Zamanlar · B O Z</span><span>2000+ · B O Z</span></div></div>
+    <div class="arch" id="archList"></div>
+  </section>
+
+  <!-- STATS -->
+  <section class="view" id="v-istatistik" hidden>
+    <div><div class="eyebrow">İstatistik</div><h1 class="h2" id="statsTitle">Senin serin</h1></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="card">
+      <div class="eyebrow">Son 5 hafta</div>
+      <div class="cal" id="cal"></div>
+      <div class="legend"><span><i></i>Gün içinde oynandı (sayı: o gün bulunan kutular)</span><span><i class="f"></i>En az bir kusursuz grid</span></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Mod bazında</div>
+      <div class="lbwrap"><table class="lb" id="modeTable"></table></div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="view" id="v-siralama" hidden>
+    <div><div class="eyebrow">Sıralama</div><h1 class="h2">Seri tablosu</h1></div>
+    <div class="seg alt" role="group" aria-label="Sıralama türü">
+      <button data-lb="streak" aria-pressed="true">Güncel seri</button>
+      <button data-lb="best" aria-pressed="false">En uzun seri</button>
+      <button data-lb="today" aria-pressed="false">Bugün</button>
+    </div>
+    <div class="card"><div class="lbwrap"><table class="lb" id="lbTable"></table></div><div class="empty" id="lbEmpty" hidden></div></div>
+    <p class="hint" id="lbNote"></p>
+  </section>
+
+  <!-- HOW -->
+  <section class="view" id="v-nasil" hidden>
+    <div><div class="eyebrow">Nasıl oynanır</div><h1 class="h2">Satır ve sütunun kesiştiği pilotu bul</h1></div>
+    <div class="card">
+      <ol class="rules">
+        <li>Her gün iki dönemde (Tüm Zamanlar ve 2000 Sonrası) ve üç zorlukta yeni bir 3x3 grid açılır. Gridler herkes için aynıdır.</li>
+        <li>Bir kutuya dokun. O kutunun satırındaki ve sütunundaki şartların ikisini de sağlayan bir pilot yaz, listeden seç.</li>
+        <li>Her tahmin bir hak harcar. Bir pilotu aynı gridde yalnızca bir kez kullanabilirsin.</li>
+        <li>O gün en az bir günlük gridi bitirirsen serin bir gün uzar. Bir günü atlarsan seri sıfırlanır.</li>
+        <li>2000 Sonrası modunda yalnızca 2000 ve sonrasındaki yarışlar sayılır. Örneğin Schumacher orada yalnızca Ferrari ve Mercedes pilotudur.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Şartlar ne anlama geliyor</div>
+      <div class="catlist">
+        <div><b>Takım</b><span>O takımla en az bir yarışa çıkmış olmak</span></div>
+        <div><b>Uyruk</b><span>Yarıştığı lisans ülkesi</span></div>
+        <div><b>Yarış galibi / podyum / pole</b><span>Kariyerinde en az bir kez</span></div>
+        <div><b>2+ takımla podyum</b><span>Farklı en az iki takımla ilk üçe girmiş</span></div>
+        <div><b>Takım arkadaşı</b><span>Aynı yarışta aynı takımda yer almış</span></div>
+        <div><b>Çıkış dönemi</b><span>İlk yarışının yılı</span></div>
+        <div><b>Şampiyonluk</b><span>Tamamlanmış sezonlar (2026 sayılmaz)</span></div>
+      </div>
+      <p class="hint">Takım aileleri: Sauber = BMW Sauber, Alfa Romeo (2019–23) ve Kick Sauber. Toro Rosso = AlphaTauri, RB, Racing Bulls. Force India = Racing Point. BAR = Honda (2006–08). Mercedes 1954–55 dahil.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Veri</div>
+      <p class="p">Tüm pilot verileri <a class="lnk" href="https://www.statsf1.com/en/default.aspx" target="_blank" rel="noopener">STATS F1</a>'deki yarış kayıtlarından alındı, 2026 Singapur GP dahil. Havuzda en az 8 yarışa çıkmış, podyum ya da şampiyonluğu olan pilotlar var. Indianapolis 500 kayıtları dışarıda.</p>
+    </div>
+  </section>
+  <p class="foot">Box Box · veri: STATS F1 · 2026 Singapur GP'ye kadar</p>
+</main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true" aria-labelledby="sheetT">
+    <div class="sheet-head"><div class="t" id="sheetT"></div><button class="x" id="closeSheet" aria-label="Kapat">×</button></div>
+    <input id="q" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Pilot adı veya soyadı yaz">
+    <ul id="sug"></ul>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="sheet" id="authSheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="authT">
+    <div class="sheet-head"><div class="t" id="authT">Giriş yap</div><button class="x" data-close="authSheet" aria-label="Kapat">×</button></div>
+    <p class="p">Giriş yaparsan serin her cihazda aynı kalır ve sıralamaya girersin. Giriş yapmadan da oynayabilirsin, o zaman sonuçların bu cihazda tutulur.</p>
+    <button class="gbtn" id="googleBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.2-13.5-10l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>Google ile devam et</button>
+    <p class="err" id="authErr" hidden></p>
+  </div>
+</div>
+<div class="sheet" id="nameSheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="nameT">
+    <div class="sheet-head"><div class="t" id="nameT">Kullanıcı adını seç</div><button class="x" data-close="nameSheet" aria-label="Kapat">×</button></div>
+    <p class="p">Sıralamada bu ad görünür. 3–20 karakter, harf, rakam, nokta ve alt çizgi.</p>
+    <form id="nameForm" class="field"><label for="nameInput">Kullanıcı adı</label><input id="nameInput" maxlength="20" autocomplete="nickname" autocapitalize="off" spellcheck="false"><p class="err" id="nameErr" hidden></p><button class="btn primary" type="submit">Kaydet</button></form>
+  </div>
+</div>
+<div class="menu" id="meMenu" hidden><button id="renameBtn">Kullanıcı adını değiştir</button><button id="logoutBtn">Çıkış yap</button></div>
+
+
+
+<script src="data.js"></script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
