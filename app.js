@@ -375,7 +375,7 @@ function renderGame(){
   processLogos();
   $('gLeft').textContent=S.left;$('giveUp').hidden=!!S.done;
   const f=S.c.filter(x=>x!=null).length;$('end').hidden=!S.done;
-  $('dayNav').hidden=free;$('mcal').hidden=free;if(!free)updateDayNav();if(S.done&&!free)renderMonthCal();
+  $('dayNav').hidden=free;$('mcal').hidden=free;if(!free){updateDayNav();renderMonthCal()}
   if(S.done){$('score').innerHTML=`${f}<small> / 9</small>`;
     $('endMsg').textContent=f===9?'Kusursuz tur. Grid tamam.':f>=6?'Podyumluk sonuç.':f>=3?'Puanlara girdin.':'Zor bir yarıştı.';
     if(free){$('nextGame').hidden=false;$('nextGame').textContent='Yeni grid'}
