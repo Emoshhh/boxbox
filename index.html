@@ -312,16 +312,6 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
   <section class="view" id="v-nasil" hidden>
     <div><div class="eyebrow">Nasıl oynanır</div><h1 class="h2">Satır ve sütunun kesiştiği pilotu bul</h1></div>
     <div class="card">
-      <ol class="rules">
-        <li>Her gün iki dönemde (Tüm Zamanlar ve 2000 Sonrası) birer 3x3 grid açılır. Gridler herkes için aynıdır.</li>
-        <li>Günün zorluğu gridin sağ üstünde yazar. Hafta başı Basit, hafta ortası Orta, hafta sonu Zor: Pzt–Sa Basit, Ça–Cu Orta, Ct–Pz Zor.</li>
-        <li>Bir kutuya dokun. O kutunun satırındaki ve sütunundaki şartların ikisini de sağlayan bir pilot yaz, listeden seç.</li>
-        <li>Her tahmin bir hak harcar. Bir pilotu aynı gridde yalnızca bir kez kullanabilirsin.</li>
-        <li>O gün en az bir günlük gridi bitirirsen serin bir gün uzar. Bir günü atlarsan seri sıfırlanır.</li>
-        <li>2000 Sonrası modunda 2000 ve sonrasında en az bir yarışa çıkmış pilotlar yer alır. Kariyerlerinin tamamı sayılır: Schumacher hem Benetton hem Ferrari pilotu, 7 kez şampiyondur.</li>
-      </ol>
-    </div>
-    <div class="card">
       <div class="eyebrow">Şartlar ne anlama geliyor</div>
       <div class="catlist">
         <div><b>Takım</b><span>O takımla en az bir yarışa çıkmış olmak</span></div>
@@ -332,12 +322,25 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
         <div><b>Çıkış dönemi</b><span>İlk yarışının yılı</span></div>
         <div><b>Şampiyonluk</b><span>Tamamlanmış sezonlar (2026 sayılmaz)</span></div>
       </div>
-      <p class="hint">Takım aileleri: Sauber = BMW Sauber, Alfa Romeo (2019–23) ve Kick Sauber. Toro Rosso = AlphaTauri, RB, Racing Bulls. Force India = Racing Point. BAR = Honda (2006–08). Mercedes 1954–55 dahil.</p>
     </div>
     <div class="card">
-      <div class="eyebrow">Veri</div>
-      <p class="p">Tüm pilot verileri <a class="lnk" href="https://www.statsf1.com/en/default.aspx" target="_blank" rel="noopener">STATS F1</a>'deki yarış kayıtlarından alındı, 2026 Singapur GP dahil. Havuzda en az 8 yarışa çıkmış, podyum ya da şampiyonluğu olan pilotlar var. Indianapolis 500 kayıtları dışarıda.</p>
-      <p class="hint">Takım logoları Wikipedia ve Wikimedia Commons'tan gösteriliyor, her biri ilgili takımın tescilli markasıdır. Bayraklar: flag-icons (MIT).</p>
+      <div class="eyebrow">Takım aileleri</div>
+      <p class="hint">Aynı takımın farklı isimleri tek takım sayılır. Örneğin Kick Sauber pilotu "Sauber" şartını sağlar.</p>
+      <div class="catlist">
+        <div><b>Sauber</b><span>Sauber, BMW Sauber, Alfa Romeo (2019–2023), Kick Sauber</span></div>
+        <div><b>Toro Rosso</b><span>Toro Rosso, AlphaTauri, RB, Racing Bulls</span></div>
+        <div><b>Force India</b><span>Force India, Racing Point</span></div>
+        <div><b>BAR / Honda</b><span>BAR, Honda (2006–2008)</span></div>
+        <div><b>Arrows</b><span>Arrows, Footwork</span></div>
+        <div><b>Marussia</b><span>Virgin, Marussia, Manor</span></div>
+        <div><b>Alfa Romeo</b><span>Sadece 1950–1985 dönemi</span></div>
+        <div><b>Mercedes</b><span>1954–1955 ve 2010 sonrası</span></div>
+        <div><b>Ayrı sayılanlar</b><span>Aston Martin, Alpine, Renault, Lotus ve Audi kendi adlarıyla ayrı takımdır</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Kaynak</div>
+      <p class="hint">Pilot ve yarış verileri: <a class="lnk" href="https://www.statsf1.com/en/default.aspx" target="_blank" rel="noopener">STATS F1</a>, 2026 Singapur Grand Prix dahil. Takım logoları Wikimedia Commons ve Wikipedia üzerinden gösterilir ve ilgili takımların tescilli markalarıdır. Bayrak görselleri: flag-icons (MIT lisansı).</p>
     </div>
   </section>
   <p class="foot">Box Box · veri: STATS F1 · 2026 Singapur GP'ye kadar</p>
@@ -346,6 +349,7 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true" aria-labelledby="sheetT">
     <div class="sheet-head"><div class="t" id="sheetT"></div><button class="x" id="closeSheet" aria-label="Kapat">×</button></div>
+    <p class="hint" id="sheetNote" hidden></p>
     <input id="q" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Pilot adı veya soyadı yaz">
     <ul id="sug"></ul>
   </div>
@@ -370,9 +374,9 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 
 
 
-<script src="data.js?v=20261013h"></script>
-<script src="config.js?v=20261013h"></script>
+<script src="data.js?v=20261013i"></script>
+<script src="config.js?v=20261013i"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="app.js?v=20261013h"></script>
+<script src="app.js?v=20261013i"></script>
 </body>
 </html>

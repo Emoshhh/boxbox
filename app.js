@@ -340,7 +340,7 @@ function renderGame(){
       const i=ri*3+ci,b=document.createElement('button');b.className='c';b.type='button';const id=S.c[i];
       if(id!=null){const d=P.D[id];const tk=d.teams.find(t=>TEAM[t]);b.classList.add('filled');if(S.done)b.classList.add('rev');
         b.innerHTML=`<div class="av" style="border-color:${tk?TEAM[tk][2]:'#4a4b52'}">${esc(initials(d.n))}</div><div class="nm">${nameHTML(d.n)}</div>`;b.setAttribute('aria-label',d.n);
-        if(S.done)b.onclick=()=>openSheet(i,true);}
+        b.classList.add('rev');b.onclick=()=>openSheet(i,true);}
       else if(S.done){b.classList.add('miss');b.textContent='Cevaplar';b.onclick=()=>openSheet(i,true)}
       else{b.textContent='+';b.setAttribute('aria-label',`${r.label} ve ${c.label}`);
         if(diff<3)b.insertAdjacentHTML('beforeend',`<span class="cnt">${answersFor(mode,r,c).length}</span>`);
@@ -380,8 +380,11 @@ let sugList=[],sugIdx=-1;
 function openSheet(i,reveal){
   active=i;const r=G.rows[Math.floor(i/3)],c=G.cols[i%3];
   $('sheetT').innerHTML=`${esc(r.label)} <span>×</span> ${esc(c.label)}`;$('sheet').hidden=false;
-  if(reveal){$('q').hidden=true;const a=answersFor(mode,r,c).sort((x,y)=>(y.known-x.known)||y.wins-x.wins||y.starts-x.starts);
-    $('sug').innerHTML=a.map(d=>`<li class="ans">${esc(d.n)}${S.c[i]===d.id?' ✓':''}<small>${d.first}–${d.last}</small></li>`).join('');}
+  const note=$('sheetNote');note.hidden=true;
+  if(reveal){$('q').hidden=true;const mine=S.c[i];
+    const a=answersFor(mode,r,c).filter(d=>d.id!==mine).sort((x,y)=>(y.known-x.known)||y.wins-x.wins||y.starts-x.starts);
+    if(mine!=null){note.hidden=false;note.textContent=a.length?`Senin cevabın: ${POOLS[mode].D[mine].n}. Bu kesişimde ${a.length} doğru cevap daha vardı:`:`Senin cevabın: ${POOLS[mode].D[mine].n}. Bu kesişimin tek doğru cevabıydı.`}
+    $('sug').innerHTML=a.map(d=>`<li class="ans">${esc(d.n)}<small>${S.c.includes(d.id)?'başka kutuda · ':''}${d.first}–${d.last}</small></li>`).join('');}
   else{$('q').hidden=false;$('q').value='';$('sug').innerHTML='';sugList=[];setTimeout(()=>$('q').focus(),30)}
 }
 function closeSheet(){$('sheet').hidden=true;active=null;$('q').blur()}
@@ -410,7 +413,7 @@ function guess(id){
   if(S.c.includes(id)){toast('Bu pilotu bu gridde zaten kullandın',true);return}
   const d=POOLS[mode].D[id],r=G.rows[Math.floor(active/3)],c=G.cols[active%3];
   S.left--;
-  if(r.t(d)&&c.t(d)){S.c[active]=id;closeSheet();toast(d.n+' doğru')}
+  if(r.t(d)&&c.t(d)){const cell=active;S.c[cell]=id;closeSheet();toast(d.n+' doğru');setTimeout(()=>openSheet(cell,true),350)}
   else{const card=$('sheetCard');card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
     const miss=!r.t(d)&&!c.t(d)?'iki şartı da':!r.t(d)?`"${r.label}" şartını`:`"${c.label}" şartını`;
     toast(`${d.n} ${miss} sağlamıyor`,true);$('q').select()}
@@ -496,6 +499,7 @@ document.querySelectorAll('[data-lb]').forEach(b=>b.onclick=()=>{lbMode=b.datase
 // ---------- routing ----------
 function go(v){if(location.hash!=='#'+v)location.hash=v;else route()}
 function route(){
+  if(!$('sheet').hidden)closeSheet();
   let h=(location.hash||'#'+playRoute).slice(1);
   if(h==='oyna')h=playRoute;
   const playIdx={tum:'all','2000':'mod',serbest:'free'};
