@@ -132,8 +132,8 @@ async function cleanLogo(src,dark){
   while(st.length){const i=st.pop();if(seen[i])continue;seen[i]=1;if(!whiteish(i))continue;
     const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const m=Math.min(r,g,b);p[i*4+3]=m>238?0:Math.round(p[i*4+3]*(238-m)/24);
     const x=i%w,y=(i/w)|0;if(x>0)st.push(i-1);if(x<w-1)st.push(i+1);if(y>0)st.push(i-w);if(y<h-1)st.push(i+w)}
-  for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
-    if(dark&&lum<70&&mx-mn<40){p[i*4]=232;p[i*4+1]=233;p[i*4+2]=237}}
+  if(dark&&!/McLarenF1Team|UOP_Shadow/.test(src))for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
+    if(lum<70&&mx-mn<40){p[i*4]=232;p[i*4+1]=233;p[i*4+2]=237}}
   cx.putImageData(id,0,0);return LOGO_CACHE[key]=cv.toDataURL('image/png');
 }
 function processLogos(){
