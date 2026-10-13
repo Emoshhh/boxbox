@@ -78,6 +78,9 @@ main{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;d
 .h .lbl{font:700 clamp(9.5px,2.75vw,13.5px)/1.06 var(--label);letter-spacing:.03em;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere}
 .h .sub{font:500 clamp(8px,2vw,10px)/1.1 var(--label);color:var(--muted);letter-spacing:.02em}
 .flag{font-size:clamp(24px,7.5vw,38px);line-height:1}
+.flagimg{width:clamp(34px,10vw,52px);aspect-ratio:4/3;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px rgba(255,255,255,.18);background:var(--cell-hi)}
+.logochip{width:90%;height:clamp(30px,9vw,46px);background:#f4f4f6;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:4px 5px}
+.logochip img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 .badge{min-width:44px;height:28px;padding:0 7px;border-radius:7px;display:flex;align-items:center;justify-content:center;font:900 12.5px/1 var(--display);letter-spacing:.05em}
 .ico{width:clamp(24px,7vw,34px);height:clamp(24px,7vw,34px);stroke:var(--fg);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .corner{background:repeating-conic-gradient(#222327 0 25%,#191a1d 0 50%) 0 0/14px 14px}
@@ -321,6 +324,7 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
     <div class="card">
       <div class="eyebrow">Veri</div>
       <p class="p">Tüm pilot verileri <a class="lnk" href="https://www.statsf1.com/en/default.aspx" target="_blank" rel="noopener">STATS F1</a>'deki yarış kayıtlarından alındı, 2026 Singapur GP dahil. Havuzda en az 8 yarışa çıkmış, podyum ya da şampiyonluğu olan pilotlar var. Indianapolis 500 kayıtları dışarıda.</p>
+      <p class="hint">Takım logoları Wikipedia ve Wikimedia Commons'tan gösteriliyor, her biri ilgili takımın tescilli markasıdır. Bayraklar: flag-icons (MIT).</p>
     </div>
   </section>
   <p class="foot">Box Box · veri: STATS F1 · 2026 Singapur GP'ye kadar</p>
@@ -353,9 +357,9 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 
 
 
-<script src="data.js?v=20261013b"></script>
-<script src="config.js?v=20261013b"></script>
+<script src="data.js?v=20261013c"></script>
+<script src="config.js?v=20261013c"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="app.js?v=20261013b"></script>
+<script src="app.js?v=20261013c"></script>
 </body>
 </html>
