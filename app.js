@@ -288,22 +288,24 @@ $('googleBtn').onclick=async()=>{
 $('meBtn').onclick=e=>{const m=$('meMenu');if(!m.hidden){m.hidden=true;return}const r=e.currentTarget.getBoundingClientRect();m.style.top=(r.bottom+6)+'px';m.style.right=(window.innerWidth-r.right)+'px';m.hidden=false};
 document.addEventListener('click',e=>{if(!e.target.closest('#meMenu')&&!e.target.closest('#meBtn'))$('meMenu').hidden=true});
 $('renameBtn').onclick=()=>{$('meMenu').hidden=true;openNameSheet(false)};
-$('logoutBtn').onclick=async()=>{$('meMenu').hidden=true;await sb.auth.signOut();ST={days:{}};saveLocal();location.hash='oyna';location.reload()};
+$('logoutBtn').onclick=async()=>{$('meMenu').hidden=true;await sb.auth.signOut();ST={days:{}};saveLocal();location.hash='tum';location.reload()};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{$(b.dataset.close).hidden=true});
 
 
 // ---------- UI state ----------
-let view='oyna',mode='all',diff=2,date=todayStr(),G=null,S=null,active=null,lbMode='streak';
+let view='oyna',free=false,freeSeed=0,freeMode='all',playRoute='tum',mode='all',diff=2,date=todayStr(),G=null,S=null,active=null,lbMode='streak';
 try{const p=JSON.parse(localStorage.getItem('boxbox:prefs'));if(p){if(p.mode==='all'||p.mode==='mod')mode=p.mode;if(p.diff>=1&&p.diff<=3)diff=p.diff}}catch(e){}
+if(mode==='mod')playRoute='2000';
 const savePrefs=()=>{try{localStorage.setItem('boxbox:prefs',JSON.stringify({mode,diff}))}catch(e){}};
 
 function loadGame(){
+  if(free){mode=freeMode;if(!freeSeed)freeSeed=(Math.random()*1e9)|0;G=generate(mode,diff,'free-'+freeSeed);S={c:Array(9).fill(null),left:GUESSES[diff],done:0,s:0,live:0};return}
   G=generate(mode,diff,date);
   const g=getGame(date,mode,diff);
   S=g?JSON.parse(JSON.stringify(g)):{c:Array(9).fill(null),left:GUESSES[diff],done:0,s:0,live:date===todayStr()?1:0};
   if(!S.c)S.c=Array(9).fill(null);
 }
-function persist(){S.s=S.c.filter(x=>x!=null).length;if(date!==todayStr())S.live=0;putGame(date,mode,diff,S);if(S.done)syncCloud()}
+function persist(){S.s=S.c.filter(x=>x!=null).length;if(free)return;if(date!==todayStr())S.live=0;putGame(date,mode,diff,S);if(S.done)syncCloud()}
 
 function headHTML(c){
   let top;
@@ -317,15 +319,16 @@ const esc=s=>String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const nameHTML=n=>{const i=n.indexOf(' ');return i<0?esc(n):esc(n.slice(0,i))+'<br>'+esc(n.slice(i+1))};
 
 function renderGame(){
-  document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
+  document.querySelectorAll('[data-fmode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.fmode===freeMode)));
+  $('freeBar').hidden=!free;$('newFree').hidden=!free;$('todayCard').hidden=free;
   document.querySelectorAll('[data-diff]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.diff===diff)));
   const isToday=date===todayStr();
-  $('gTitle').innerHTML=`Grid <span>#${dayNum(date)}</span> · ${MN[mode]}`;
-  $('gDate').textContent=fmtDate(date)+' · '+DN[diff];
-  $('archTag').hidden=isToday;$('backToday').hidden=isToday;
+  $('gTitle').innerHTML=free?`Serbest <span>·</span> ${MN[mode]}`:`Grid <span>#${dayNum(date)}</span> · ${MN[mode]}`;
+  $('gDate').textContent=free?'Test · '+DN[diff]:fmtDate(date)+' · '+DN[diff];
+  $('archTag').hidden=isToday||free;$('backToday').hidden=isToday||free;
   const P=POOLS[mode],g=$('grid');g.innerHTML='';
   const corner=document.createElement('div');corner.className='h corner';
-  corner.innerHTML=`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${IC.flag}</svg><div class="lbl">${MS[mode]}</div><div class="num">#${dayNum(date)}</div>`;
+  corner.innerHTML=`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${IC.flag}</svg><div class="lbl">${MS[mode]}</div><div class="num">${free?'TEST':'#'+dayNum(date)}</div>`;
   g.appendChild(corner);
   G.cols.forEach(c=>{const h=document.createElement('div');h.className='h';h.innerHTML=headHTML(c);g.appendChild(h)});
   G.rows.forEach((r,ri)=>{
@@ -347,7 +350,8 @@ function renderGame(){
   const f=S.c.filter(x=>x!=null).length;$('end').hidden=!S.done;
   if(S.done){$('score').innerHTML=`${f}<small> / 9</small>`;
     $('endMsg').textContent=f===9?'Kusursuz tur. Grid tamam.':f>=6?'Podyumluk sonuç.':f>=3?'Puanlara girdin.':'Zor bir yarıştı.';
-    const nx=nextOpen();$('nextGame').hidden=!nx;if(nx)$('nextGame').textContent=`Sıradaki: ${MS[nx[0]]} ${DN[nx[1]]}`;}
+    if(free){$('nextGame').hidden=false;$('nextGame').textContent='Yeni grid'}
+    else{const nx=nextOpen();$('nextGame').hidden=!nx;if(nx)$('nextGame').textContent=`Sıradaki: ${MS[nx[0]]} ${DN[nx[1]]}`}}
   renderTodayChips();
 }
 function nextOpen(){const t=date;for(const m of ['all','mod'])for(const d of [1,2,3]){const g=getGame(t,m,d);if(!(g&&g.done)&&!(m===mode&&d===diff))return [m,d]}return null}
@@ -357,7 +361,7 @@ function renderTodayChips(){
   const t=todayStr(),el=$('todayChips');el.innerHTML='<span></span>'+[1,2,3].map(d=>`<span class="rl" style="text-align:center">${DN[d]}</span>`).join('');
   for(const m of ['all','mod']){el.insertAdjacentHTML('beforeend',`<span class="rl">${MS[m]}</span>`);
     for(const d of [1,2,3]){const g=getGame(t,m,d);const b=document.createElement('button');b.className=chipCls(g);b.innerHTML=chipHTML(g);b.setAttribute('aria-label',`${MN[m]} ${DN[d]}`);
-      b.onclick=()=>{mode=m;diff=d;date=t;savePrefs();loadGame();renderGame();window.scrollTo({top:0,behavior:'smooth'})};el.appendChild(b)}}
+      b.onclick=()=>{diff=d;date=t;savePrefs();openPlay(m==='all'?'tum':'2000')};el.appendChild(b)}}
 }
 function renderSyncNote(){
   const n=$('syncNote');
@@ -412,11 +416,14 @@ function guess(id){
 }
 $('giveUp').onclick=()=>{S.done=1;persist();renderGame();renderPill()};
 $('backToday').onclick=()=>{date=todayStr();loadGame();renderGame()};
-$('nextGame').onclick=()=>{const nx=nextOpen();if(!nx)return;[mode,diff]=nx;savePrefs();loadGame();renderGame();window.scrollTo({top:0,behavior:'smooth'})};
-document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;savePrefs();loadGame();renderGame()});
+function openPlay(p,keepDate){if(!keepDate)date=todayStr();forceReload=true;go(p)}
+let forceReload=false;
+$('nextGame').onclick=()=>{if(free){freeSeed=0;loadGame();renderGame();return}const nx=nextOpen();if(!nx)return;diff=nx[1];savePrefs();if(nx[0]!==mode){openPlay(nx[0]==='all'?'tum':'2000');return}loadGame();renderGame();window.scrollTo({top:0,behavior:'smooth'})};
+document.querySelectorAll('[data-fmode]').forEach(b=>b.onclick=()=>{freeMode=b.dataset.fmode;freeSeed=0;loadGame();renderGame()});
+$('newFree').onclick=()=>{freeSeed=0;loadGame();renderGame()};
 document.querySelectorAll('[data-diff]').forEach(b=>b.onclick=()=>{diff=+b.dataset.diff;savePrefs();loadGame();renderGame()});
 $('share').onclick=()=>{
-  const f=S.c.filter(x=>x!=null).length;let txt=`Box Box #${dayNum(date)} · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`;
+  const f=S.c.filter(x=>x!=null).length;let txt=(free?`Box Box Serbest · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`:`Box Box #${dayNum(date)} · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`);
   for(let r=0;r<3;r++)txt+=[0,1,2].map(c=>S.c[r*3+c]!=null?'🟩':'⬛').join('')+'\n';
   const st=computeStats();if(st.streak>1)txt+=`Seri: ${st.streak} gün`;
   try{navigator.clipboard.writeText(txt.trim()).then(()=>toast('Sonuç kopyalandı'),()=>toast(txt.trim()))}catch(e){toast(txt.trim())}
@@ -431,7 +438,7 @@ function renderArchive(){
     const ch=row.querySelector('.chips');
     for(const m of ['all','mod'])for(const d of [1,2,3]){const g=getGame(dt,m,d);const b=document.createElement('button');b.className=chipCls(g);
       b.textContent=g?(g.done?g.s:'…'):DN[d][0];b.setAttribute('aria-label',`${fmtDate(dt)} ${MN[m]} ${DN[d]}${g&&g.done?', '+g.s+' / 9':''}`);
-      b.onclick=()=>{mode=m;diff=d;date=dt;savePrefs();loadGame();go('oyna')};ch.appendChild(b)}
+      b.onclick=()=>{diff=d;date=dt;savePrefs();openPlay(m==='all'?'tum':'2000',true)};ch.appendChild(b)}
     el.appendChild(row);
   }
 }
@@ -486,17 +493,28 @@ document.querySelectorAll('[data-lb]').forEach(b=>b.onclick=()=>{lbMode=b.datase
 // ---------- routing ----------
 function go(v){if(location.hash!=='#'+v)location.hash=v;else route()}
 function route(){
-  const h=(location.hash||'#oyna').slice(1);view=['oyna','arsiv','istatistik','siralama','nasil'].includes(h)?h:'oyna';
+  let h=(location.hash||'#'+playRoute).slice(1);
+  if(h==='oyna')h=playRoute;
+  const playIdx={tum:'all','2000':'mod',serbest:'free'};
+  if(playIdx[h]){view='oyna';const wasFree=free,prevMode=mode;playRoute=h;free=h==='serbest';
+    if(!free)mode=playIdx[h];
+    if(!G||forceReload||wasFree!==free||(!free&&prevMode!==mode)){if(!free&&!forceReload&&wasFree!==free)date=todayStr();loadGame()}
+    forceReload=false;savePrefs();}
+  else view=['arsiv','istatistik','siralama','nasil'].includes(h)?h:'oyna';
   document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+view);
   document.querySelectorAll('nav a').forEach(a=>a.setAttribute('aria-current',a.dataset.v===view?'page':'false'));
+  $('subnav').hidden=view!=='oyna';
+  document.querySelectorAll('.subnav a').forEach(a=>a.setAttribute('aria-current',a.dataset.p===playRoute?'page':'false'));
   if(view==='oyna'){if(!G)loadGame();renderGame()}
   if(view==='arsiv')renderArchive();
   if(view==='istatistik')renderStats();
   if(view==='siralama')renderLeaderboard();
   window.scrollTo(0,0);
 }
+
 function renderAll(){renderPill();renderSyncNote();route()}
 window.addEventListener('hashchange',route);
+document.querySelector('nav a[data-v="oyna"]').addEventListener('click',e=>{e.preventDefault();go(playRoute)});
 // day rollover while open
 setInterval(()=>{const t=todayStr();if(t!==window.__pgDay){const was=window.__pgDay;window.__pgDay=t;if(was&&date===was&&!S.done){}renderPill();if(view==='oyna')renderTodayChips()}},60000);
 window.__pgDay=todayStr();

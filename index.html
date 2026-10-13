@@ -38,6 +38,12 @@ nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
 nav a{flex:0 0 auto;font:700 14px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:10px 12px 11px;border-bottom:3px solid transparent}
 nav a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--red)}
+.subnav{display:flex;gap:6px;padding-block:8px 10px;overflow-x:auto;scrollbar-width:none}
+.subnav[hidden]{display:none}
+.subnav a{flex:1 1 0;min-width:0;white-space:nowrap;justify-content:center;display:inline-flex;align-items:center;gap:5px;font:700 12px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;text-decoration:none;color:var(--muted);padding:9px 8px;border-radius:999px;border:1px solid var(--line);background:var(--cell)}
+.subnav a[aria-current="page"]{background:var(--red);border-color:var(--red);color:#fff}
+.subnav a small{font:700 9.5px/1 var(--label);letter-spacing:.1em;padding:3px 5px;border-radius:4px;border:1px dashed currentColor;opacity:.85}
+.freebar{display:flex;flex-direction:column;gap:8px}
 nav a:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
 main{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;display:flex;flex-direction:column;gap:16px}
 .view[hidden]{display:none}
@@ -211,6 +217,11 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
       <a href="#siralama" data-v="siralama">Sıralama</a>
       <a href="#nasil" data-v="nasil">Nasıl oynanır</a>
     </nav>
+    <div class="subnav" id="subnav" role="group" aria-label="Oyun modu">
+      <a href="#tum" data-p="tum">Tüm Zamanlar</a>
+      <a href="#2000" data-p="2000">2000 Sonrası</a>
+      <a href="#serbest" data-p="serbest" class="test">Serbest<small>TEST</small></a>
+    </div>
   </div>
 </header>
 
@@ -219,9 +230,12 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
   <section class="view" id="v-oyna">
     <div class="card">
       <div class="controls">
-        <div class="seg" role="group" aria-label="Dönem">
-          <button data-mode="all" aria-pressed="true">Tüm Zamanlar</button>
-          <button data-mode="mod" aria-pressed="false">2000 Sonrası</button>
+        <div class="freebar" id="freeBar" hidden>
+          <div class="seg" role="group" aria-label="Serbest oyun havuzu">
+            <button data-fmode="all" aria-pressed="true">Tüm Zamanlar</button>
+            <button data-fmode="mod" aria-pressed="false">2000 Sonrası</button>
+          </div>
+          <p class="hint">Test modu: her seferinde rastgele grid. Sonuçlar kaydedilmez, seriye ve sıralamaya girmez.</p>
         </div>
         <div class="seg alt" role="group" aria-label="Zorluk">
           <button data-diff="1" aria-pressed="false">Basit</button>
@@ -236,7 +250,7 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
       <div class="grid" id="grid"></div>
       <div class="bar">
         <div class="guesses">Kalan tahmin <b id="gLeft">0</b></div>
-        <div class="row"><button class="btn" id="backToday" hidden>Bugüne dön</button><button class="btn" id="giveUp">Pes et</button></div>
+        <div class="row"><button class="btn" id="backToday" hidden>Bugüne dön</button><button class="btn" id="newFree" hidden>Yeni grid</button><button class="btn" id="giveUp">Pes et</button></div>
       </div>
       <div class="end" id="end" hidden>
         <div class="score" id="score"></div>
@@ -245,7 +259,7 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
         <p class="hint">Kutulara dokunarak tüm doğru cevapları görebilirsin.</p>
       </div>
     </div>
-    <div class="card">
+    <div class="card" id="todayCard">
       <div class="eyebrow">Bugünün gridleri</div>
       <div class="today" id="todayChips"></div>
       <p class="hint" id="syncNote"></p>
@@ -348,9 +362,9 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 
 
 
-<script src="data.js?v=20261013e"></script>
-<script src="config.js?v=20261013e"></script>
+<script src="data.js?v=20261013f"></script>
+<script src="config.js?v=20261013f"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="app.js?v=20261013e"></script>
+<script src="app.js?v=20261013f"></script>
 </body>
 </html>
