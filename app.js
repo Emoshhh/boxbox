@@ -95,9 +95,9 @@ function buildCats(mode){
   ach('podium',1,'Podyum','podium','pod',d=>d.pods>0);
   ach('pole',1,'Pole Pozisyonu','pole','pole',d=>d.poles>0);
   ach('multi',2,'2+ Kez Şampiyon','trophies','title',d=>d.titles>1);
-  ach('lead',2,'Şampiyona Lideri Olmuş','lead','title',d=>d.lead,'Bir yarış sonrası puan lideri','2026-10-14');
-  ach('home',2,"Kendi Ülkesinin GP'sini Kazanmış",'home','win',d=>d.home,'','2026-10-14');
-  ach('circ3',2,'3+ Farklı Pistte Kazanmış','track','win',d=>d.circ3,'','2026-10-14');
+  ach('lead',2,'Şampiyona Lideri Olmuş','lead','title',d=>d.lead,'Bir yarış sonrası puan lideri');
+  ach('home',2,"Kendi Ülkesinin GP'sini Kazanmış",'home','win',d=>d.home,'');
+  ach('circ3',2,'3+ Farklı Pistte Kazanmış','track','win',d=>d.circ3,'');
   ach('nowin',2,'Hiç Kazanamadı','x','win',d=>d.wins===0);
   ach('nopod',3,'Hiç Podyum Yok','x','pod',d=>d.pods===0);
   ach('pod2',3,'2+ Takımla Podyum','two','pod',d=>d.pod.length>=2);
