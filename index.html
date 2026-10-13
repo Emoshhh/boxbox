@@ -190,7 +190,8 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 .toast.bad{border-color:var(--bad)}
 .foot{font:500 12px/1.5 var(--label);color:var(--dim);text-align:center;letter-spacing:.03em;margin:0}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}}
-.btn.sm{padding:8px 12px;font-size:12px}
+.btn.sm{padding:8px 12px;font-size:12px;white-space:nowrap}
+@media (max-width:430px){.logo small{display:none}}
 .mebtn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;cursor:pointer;font:600 13px/1 var(--label);color:var(--fg);letter-spacing:.03em;min-width:0}
 .mebtn img{width:24px;height:24px;border-radius:50%}
 .mebtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
