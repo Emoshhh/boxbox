@@ -399,15 +399,24 @@ function renderSyncNote(){
 // ---------- sheet ----------
 let sugList=[],sugIdx=-1;
 function openSheet(i,reveal){
+  if(reveal){openDrawer(i);return}
   active=i;const r=G.rows[Math.floor(i/3)],c=G.cols[i%3];
-  $('sheetT').innerHTML=`${esc(r.label)} <span>×</span> ${esc(c.label)}`;$('sheet').hidden=false;
-  const note=$('sheetNote');note.hidden=true;
-  if(reveal){$('q').hidden=true;const mine=S.c[i];
-    const a=answersFor(mode,r,c).filter(d=>d.id!==mine).sort((x,y)=>(y.known-x.known)||y.wins-x.wins||y.starts-x.starts);
-    if(mine!=null){note.hidden=false;note.textContent=a.length?`Senin cevabın: ${POOLS[mode].D[mine].n}. Bu kesişimde ${a.length} doğru cevap daha vardı:`:`Senin cevabın: ${POOLS[mode].D[mine].n}. Bu kesişimin tek doğru cevabıydı.`}
-    $('sug').innerHTML=a.map(d=>`<li class="ans">${esc(d.n)}<small>${S.c.includes(d.id)?'başka kutuda · ':''}${d.first}–${d.last}</small></li>`).join('');}
-  else{$('q').hidden=false;$('q').value='';$('sug').innerHTML='';sugList=[];setTimeout(()=>$('q').focus(),30)}
+  $('sheetT').innerHTML=`${esc(r.label)} <span>×</span> ${esc(c.label)}`;$('sheet').hidden=false;$('sheetNote').hidden=true;
+  $('q').hidden=false;$('q').value='';$('sug').innerHTML='';sugList=[];setTimeout(()=>$('q').focus(),30);
 }
+function openDrawer(i){
+  const r=G.rows[Math.floor(i/3)],c=G.cols[i%3],mine=S.c[i],P=POOLS[mode];
+  $('drawerT').innerHTML=`${esc(r.label)} <span>×</span> ${esc(c.label)}`;
+  const a=answersFor(mode,r,c).filter(d=>d.id!==mine).sort((x,y)=>(y.known-x.known)||y.wins-x.wins||y.starts-x.starts);
+  const m=$('drawerMine');m.hidden=mine==null;if(mine!=null)m.textContent=P.D[mine].n;
+  $('drawerNote').textContent=mine!=null?(a.length?`Bu kesişimde ${a.length} doğru cevap daha vardı:`:'Bu kesişimin tek doğru cevabıydı.'):`Bu kesişimin ${a.length} doğru cevabı:`;
+  $('drawerList').innerHTML=a.map((d,k)=>`<li style="animation-delay:${Math.min(k,14)*35+120}ms">${esc(d.n)}<small>${S.c.includes(d.id)?'başka kutuda · ':''}${d.first}–${d.last}</small></li>`).join('');
+  $('drawerList').scrollTop=0;
+  const sc=$('drawerScrim'),dr=$('drawer');sc.hidden=false;requestAnimationFrame(()=>{sc.classList.add('on');dr.classList.add('open');dr.setAttribute('aria-hidden','false')});
+}
+function closeDrawer(){const sc=$('drawerScrim'),dr=$('drawer');if(!dr.classList.contains('open'))return;dr.classList.remove('open');dr.setAttribute('aria-hidden','true');sc.classList.remove('on');setTimeout(()=>{sc.hidden=true},280)}
+$('closeDrawer').onclick=closeDrawer;$('drawerScrim').onclick=closeDrawer;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 function closeSheet(){$('sheet').hidden=true;active=null;$('q').blur()}
 function search(q){
   const qn=norm(q);if(!qn)return[];const qt=qn.split(' ');
@@ -434,7 +443,7 @@ function guess(id){
   if(S.c.includes(id)){toast('Bu pilotu bu gridde zaten kullandın',true);return}
   const d=POOLS[mode].D[id],r=G.rows[Math.floor(active/3)],c=G.cols[active%3];
   S.left--;
-  if(r.t(d)&&c.t(d)){const cell=active;S.c[cell]=id;closeSheet();toast(d.n+' doğru');setTimeout(()=>openSheet(cell,true),350)}
+  if(r.t(d)&&c.t(d)){const cell=active;S.c[cell]=id;closeSheet();setTimeout(()=>openDrawer(cell),220)}
   else{const card=$('sheetCard');card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
     const miss=!r.t(d)&&!c.t(d)?'iki şartı da':!r.t(d)?`"${r.label}" şartını`:`"${c.label}" şartını`;
     toast(`${d.n} ${miss} sağlamıyor`,true);$('q').select()}
@@ -521,6 +530,7 @@ document.querySelectorAll('[data-lb]').forEach(b=>b.onclick=()=>{lbMode=b.datase
 function go(v){if(location.hash!=='#'+v)location.hash=v;else route()}
 function route(){
   if(!$('sheet').hidden)closeSheet();
+  closeDrawer();
   let h=(location.hash||'#'+playRoute).slice(1);
   if(h==='oyna')h=playRoute;
   const playIdx={tum:'all','2000':'mod',serbest:'free'};
