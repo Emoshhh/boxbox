@@ -16,6 +16,8 @@ function buildPool(k){
     d.tokens=norm(d.n+' '+(ALIAS[d.n]||'')).split(' ');d.full=norm(d.n);
     d.known=k==='all'?(d.starts>=50||d.wins>0||d.titles>0):(d.starts>=40||d.pods>0);return d});
   const tm={};for(const [h,list] of Object.entries(src.tm))tm[h]=new Set(list);
+  const fl={};for(const [f,list] of Object.entries(src.fl||{}))fl[f]=new Set(list);
+  for(const d of D){d.lead=!!(fl.lead&&fl.lead.has(d.n));d.home=!!(fl.home&&fl.home.has(d.n));d.circ3=!!(fl.circ3&&fl.circ3.has(d.n))}
   return {D,tm,byName:Object.fromEntries(D.map(d=>[d.n,d]))};
 }
 const POOLS={all:buildPool('all'),mod:buildPool('mod')};
@@ -29,7 +31,9 @@ BRW:['Brawn GP','BGP','#c8f000'],CAD:['Cadillac','CAD','#9a9a9a'],AUD:['Audi','A
 LIG:['Ligier','LIG','#2d6fd6'],MAS:['Maserati','MAS','#8a1c1c'],MAR:['March','MAR','#e8792b'],ARR:['Arrows','ARR','#f28c1a','Footwork dahil'],MIN:['Minardi','MIN','#2b2b2b'],ALF:['Alfa Romeo','ALFA','#9b1b30','1950–85'],
 MAT:['Matra','MS','#2c63c4'],SHA:['Shadow','DN','#444444'],SUR:['Surtees','TS','#b03030'],JAG:['Jaguar','JAG','#0d4f2e'],STE:['Stewart','SF','#ffffff'],PRO:['Prost','AP','#1f4fa8'],VAN:['Vanwall','VW','#1a5a3a'],
 HON:['Honda','RA','#e8e8e8','1964–68'],TOL:['Toleman','TG','#2a6fd1'],WOL:['Wolf','WR','#c9a227'],HES:['Hesketh','HES','#f2f2f2'],MAN:['Marussia','MR','#c4141b','Virgin · Manor'],CAT:['Caterham','CT','#0a5b33'],EAG:['Eagle','AAR','#2b4fa0']};
-const LOGO={"FER":"en/thumb/d/df/Scuderia_Ferrari_HP_logo_24.svg/250px-Scuderia_Ferrari_HP_logo_24.svg.png","MCL":"en/thumb/0/03/McLarenF1Team.png/250px-McLarenF1Team.png","MER":"commons/thumb/f/fc/Mercedes-AMG_Petronas_F1_Team_logo_%282026%29.svg/250px-Mercedes-AMG_Petronas_F1_Team_logo_%282026%29.svg.png","RBR":"en/thumb/f/fa/Red_Bull_Racing_Logo_2026.svg/250px-Red_Bull_Racing_Logo_2026.svg.png","WIL":"commons/thumb/1/12/Atlassian_Williams_F1_Team_logo.svg/250px-Atlassian_Williams_F1_Team_logo.svg.png","REN":"en/thumb/1/1d/Renault_F1_Team_logo_2019.svg/250px-Renault_F1_Team_logo_2019.svg.png","ALP":"commons/thumb/4/4a/BWT_Alpine_F1_Team_Logo.png/250px-BWT_Alpine_F1_Team_Logo.png","AMR":"en/thumb/1/15/Aston_Martin_Aramco_2024_logo.png/250px-Aston_Martin_Aramco_2024_logo.png","HAA":"commons/thumb/1/18/TGR_Haas_F1_Team_Logo_%282026%29.svg/250px-TGR_Haas_F1_Team_Logo_%282026%29.svg.png","SAU":"en/thumb/b/b7/Sauber_Motorsport_SVG_logo_%282023%29.svg/250px-Sauber_Motorsport_SVG_logo_%282023%29.svg.png","TRO":"en/thumb/4/4f/Scuderia_Toro_Rosso_logo.svg/250px-Scuderia_Toro_Rosso_logo.svg.png","BEN":"en/thumb/5/54/Benetton_Formula_logo.jpg/250px-Benetton_Formula_logo.jpg","LOT":"commons/9/9e/TeamLotus.jpg","JOR":"en/thumb/9/93/Jordan_Grand_Prix_logo.png/250px-Jordan_Grand_Prix_logo.png","FIN":"en/thumb/e/e8/Force_India.svg/250px-Force_India.svg.png","TOY":"commons/thumb/0/0e/Panasonic_Toyota_Racing_logo.svg/250px-Panasonic_Toyota_Racing_logo.svg.png","BAR":"en/thumb/2/25/British_american_racing_logo.png/250px-British_american_racing_logo.png","BRW":"commons/thumb/2/24/Brawn_GP_logo.svg/250px-Brawn_GP_logo.svg.png","CAD":"en/thumb/b/bc/Cadillac_Formula_1_Team_Logo_%282025%29.svg/250px-Cadillac_Formula_1_Team_Logo_%282025%29.svg.png","AUD":"commons/thumb/0/03/Audif1.com_logo17_%28cropped%29.svg/250px-Audif1.com_logo17_%28cropped%29.svg.png","BRB":"en/5/53/Brabham91.png","TYR":"commons/thumb/5/5e/Tyrrell.svg/250px-Tyrrell.svg.png","BRM":"en/b/bd/BritishRacingMotorsLogo.png","COO":"commons/thumb/b/b0/Cooper_car_company.png/250px-Cooper_car_company.png","LIG":"commons/thumb/8/8d/Ligier_logo.jpg/250px-Ligier_logo.jpg","MAS":"commons/thumb/7/78/Maserati_logo_2.svg/250px-Maserati_logo_2.svg.png","MAR":"en/0/02/March_Engineering.png","ARR":"commons/thumb/6/62/Arrows_Grand_Prix_logo.png/250px-Arrows_Grand_Prix_logo.png","MIN":"commons/thumb/3/3c/Minardi_F1_Team.svg/250px-Minardi_F1_Team.svg.png","ALF":"en/2/2a/Alfa_Romeo_logo.png","MAT":"en/thumb/0/08/Matra_logo.gif/250px-Matra_logo.gif","SHA":"en/c/c4/UOP_Shadow_logo.png","SUR":"commons/thumb/c/ce/SurteesLogo.svg/250px-SurteesLogo.svg.png","STE":"en/0/00/Stewart_logo.png","PRO":"commons/thumb/d/d1/Prost_Grand_Prix_Formula_One_Logo.png/250px-Prost_Grand_Prix_Formula_One_Logo.png","VAN":"en/thumb/5/58/Vanwall_logo.jpg/250px-Vanwall_logo.jpg","HON":"commons/thumb/0/0e/Logo_Honda_F1.svg/250px-Logo_Honda_F1.svg.png","TOL":"commons/thumb/3/38/Toleman_logo.svg/250px-Toleman_logo.svg.png","WOL":"en/0/03/WalterWolfRacing.png","HES":"commons/thumb/7/79/Hesketh_%22teddy_bear%22_logo_used_in_1974_and_1975.jpg/250px-Hesketh_%22teddy_bear%22_logo_used_in_1974_and_1975.jpg","MAN":"en/thumb/7/71/Marussia_F1.png/250px-Marussia_F1.png","CAT":"en/thumb/6/61/Caterham_F1_Team_logo.svg/250px-Caterham_F1_Team_logo.svg.png","EAG":"en/thumb/5/55/Anglo_American_Racers_logo.svg/250px-Anglo_American_Racers_logo.svg.png"};
+const LOGO={"FER":"en/thumb/d/df/Scuderia_Ferrari_HP_logo_24.svg/500px-Scuderia_Ferrari_HP_logo_24.svg.png","MCL":"commons/thumb/b/bb/Mclaren_Logo_2021.svg/500px-Mclaren_Logo_2021.svg.png","MER":"commons/thumb/f/fc/Mercedes-AMG_Petronas_F1_Team_logo_%282026%29.svg/250px-Mercedes-AMG_Petronas_F1_Team_logo_%282026%29.svg.png","RBR":"en/thumb/f/fa/Red_Bull_Racing_Logo_2026.svg/500px-Red_Bull_Racing_Logo_2026.svg.png","WIL":"commons/thumb/1/12/Atlassian_Williams_F1_Team_logo.svg/250px-Atlassian_Williams_F1_Team_logo.svg.png","REN":"en/thumb/1/1d/Renault_F1_Team_logo_2019.svg/250px-Renault_F1_Team_logo_2019.svg.png","ALP":"commons/thumb/4/4a/BWT_Alpine_F1_Team_Logo.png/250px-BWT_Alpine_F1_Team_Logo.png","AMR":"en/thumb/1/15/Aston_Martin_Aramco_2024_logo.png/250px-Aston_Martin_Aramco_2024_logo.png","HAA":"commons/thumb/1/18/TGR_Haas_F1_Team_Logo_%282026%29.svg/250px-TGR_Haas_F1_Team_Logo_%282026%29.svg.png","SAU":"en/thumb/b/b7/Sauber_Motorsport_SVG_logo_%282023%29.svg/250px-Sauber_Motorsport_SVG_logo_%282023%29.svg.png","TRO":"en/thumb/4/4f/Scuderia_Toro_Rosso_logo.svg/250px-Scuderia_Toro_Rosso_logo.svg.png","BEN":"en/thumb/5/54/Benetton_Formula_logo.jpg/250px-Benetton_Formula_logo.jpg","LOT":"commons/9/9e/TeamLotus.jpg","JOR":"en/thumb/9/93/Jordan_Grand_Prix_logo.png/250px-Jordan_Grand_Prix_logo.png","FIN":"en/thumb/e/e8/Force_India.svg/250px-Force_India.svg.png","TOY":"commons/thumb/0/0e/Panasonic_Toyota_Racing_logo.svg/250px-Panasonic_Toyota_Racing_logo.svg.png","BAR":"en/thumb/2/25/British_american_racing_logo.png/250px-British_american_racing_logo.png","BRW":"commons/thumb/2/24/Brawn_GP_logo.svg/250px-Brawn_GP_logo.svg.png","CAD":"en/thumb/b/bc/Cadillac_Formula_1_Team_Logo_%282025%29.svg/250px-Cadillac_Formula_1_Team_Logo_%282025%29.svg.png","AUD":"commons/thumb/0/03/Audif1.com_logo17_%28cropped%29.svg/250px-Audif1.com_logo17_%28cropped%29.svg.png","BRB":"en/5/53/Brabham91.png","TYR":"commons/thumb/5/5e/Tyrrell.svg/250px-Tyrrell.svg.png","BRM":"en/b/bd/BritishRacingMotorsLogo.png","COO":"commons/thumb/b/b0/Cooper_car_company.png/250px-Cooper_car_company.png","LIG":"commons/thumb/8/8d/Ligier_logo.jpg/250px-Ligier_logo.jpg","MAS":"commons/thumb/7/78/Maserati_logo_2.svg/250px-Maserati_logo_2.svg.png","MAR":"en/0/02/March_Engineering.png","ARR":"commons/thumb/6/62/Arrows_Grand_Prix_logo.png/250px-Arrows_Grand_Prix_logo.png","MIN":"commons/thumb/3/3c/Minardi_F1_Team.svg/250px-Minardi_F1_Team.svg.png","ALF":"en/2/2a/Alfa_Romeo_logo.png","MAT":"en/thumb/0/08/Matra_logo.gif/250px-Matra_logo.gif","SHA":"en/c/c4/UOP_Shadow_logo.png","SUR":"commons/thumb/c/ce/SurteesLogo.svg/250px-SurteesLogo.svg.png","STE":"en/0/00/Stewart_logo.png","PRO":"commons/thumb/d/d1/Prost_Grand_Prix_Formula_One_Logo.png/250px-Prost_Grand_Prix_Formula_One_Logo.png","VAN":"en/thumb/5/58/Vanwall_logo.jpg/250px-Vanwall_logo.jpg","HON":"commons/thumb/0/0e/Logo_Honda_F1.svg/250px-Logo_Honda_F1.svg.png","TOL":"commons/thumb/3/38/Toleman_logo.svg/250px-Toleman_logo.svg.png","WOL":"en/0/03/WalterWolfRacing.png","HES":"commons/thumb/7/79/Hesketh_%22teddy_bear%22_logo_used_in_1974_and_1975.jpg/250px-Hesketh_%22teddy_bear%22_logo_used_in_1974_and_1975.jpg","MAN":"en/thumb/7/71/Marussia_F1.png/250px-Marussia_F1.png","CAT":"en/thumb/6/61/Caterham_F1_Team_logo.svg/250px-Caterham_F1_Team_logo.svg.png","EAG":"en/thumb/5/55/Anglo_American_Racers_logo.svg/250px-Anglo_American_Racers_logo.svg.png"};
+// Logonun sadece bir bölümü: [x0,y0,x1,y1] oranları
+const CROP={Scuderia_Ferrari_HP:[0,0,.37,1],Red_Bull_Racing_Logo_2026:[0,.33,1,.74]};
 const logoUrl=k=>LOGO[k]?'https://upload.wikimedia.org/wikipedia/'+LOGO[k]:null;
 const flagUrl=c=>'https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/'+c.toLowerCase()+'.svg';
 const textOn=hex=>{const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>150?'#111':'#fff'};
@@ -47,6 +51,9 @@ const IC={
  one:'<rect x="5" y="6" width="14" height="12" rx="3"/><path d="M12 9v6M10.5 10.5 12 9"/>',
  flag:'<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
  laps:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',
+ lead:'<path d="M4 20h16M7 16V11M12 16V6M17 16v-3"/><path d="M10 4l2-2 2 2"/>',
+ home:'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>',
+ track:'<path d="M6 18c-2 0-3-2-2-4l3-6c1-2 3-3 5-2l2 1c1 1 3 1 4 0 2-1 4 1 3 3l-2 5c-1 2-3 3-5 3z"/><circle cx="9" cy="14" r="1"/>',
  people:'<circle cx="8.5" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5M13 15c1-.7 2-1 3-1 3 0 5 2 5 5"/>'
 };
 
@@ -56,7 +63,7 @@ function buildCats(mode){
   const P=POOLS[mode],C=[];
   const nat=(c,lv)=>C.push({id:'n'+c,type:'nat',lv,label:NAT[c],flag:flag(c),iso:c,t:d=>d.nat===c});
   const team=(k,lv)=>C.push({id:'t'+k,type:'team',lv,g:k==='FIN'||k==='AMR'?'AMRFIN':null,label:TEAM[k][0],code:TEAM[k][1],color:TEAM[k][2],sub:TEAM[k][3]||'',logo:logoUrl(k),t:d=>d.teams.includes(k)});
-  const ach=(id,lv,label,icon,g,t,sub)=>C.push({id,type:'ach',lv,label,icon,g,t,sub:sub||''});
+  const ach=(id,lv,label,icon,g,t,sub,since)=>C.push({id,type:'ach',lv,label,icon,g,t,sub:sub||'',since});
   if(mode==='all'){
     ['GB','DE','FR','BR','IT','FI','AU'].forEach(c=>nat(c,1));
     ['NL','ES','US','AT','AR','CA','NZ','BE'].forEach(c=>nat(c,2));
@@ -88,6 +95,9 @@ function buildCats(mode){
   ach('podium',1,'Podyum','podium','pod',d=>d.pods>0);
   ach('pole',1,'Pole Pozisyonu','pole','pole',d=>d.poles>0);
   ach('multi',2,'2+ Kez Şampiyon','trophies','title',d=>d.titles>1);
+  ach('lead',2,'Şampiyona Lideri Olmuş','lead','title',d=>d.lead,'Bir yarış sonrası puan lideri','2026-10-14');
+  ach('home',2,"Kendi Ülkesinin GP'sini Kazanmış",'home','win',d=>d.home,'','2026-10-14');
+  ach('circ3',2,'3+ Farklı Pistte Kazanmış','track','win',d=>d.circ3,'','2026-10-14');
   ach('nowin',2,'Hiç Kazanamadı','x','win',d=>d.wins===0);
   ach('nopod',3,'Hiç Podyum Yok','x','pod',d=>d.pods===0);
   ach('pod2',3,'2+ Takımla Podyum','two','pod',d=>d.pod.length>=2);
@@ -122,9 +132,10 @@ function loadImg(src){if(!LOGO_IMG[src])LOGO_IMG[src]=new Promise((res,rej)=>{co
 // Removes the white backdrop around a logo and adapts near-black / near-white parts to the theme.
 async function cleanLogo(src,dark){
   const key=src+'|'+(dark?1:0);if(LOGO_CACHE[key])return LOGO_CACHE[key];
-  const im=await loadImg(src);const sc=Math.min(1,240/Math.max(im.naturalWidth,im.naturalHeight));
-  const w=Math.max(1,Math.round(im.naturalWidth*sc)),h=Math.max(1,Math.round(im.naturalHeight*sc));
-  const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.drawImage(im,0,0,w,h);
+  const im=await loadImg(src);const ck=Object.keys(CROP).find(k=>src.includes(k));const cr=ck?CROP[ck]:[0,0,1,1];
+  const sw=im.naturalWidth*(cr[2]-cr[0]),sh=im.naturalHeight*(cr[3]-cr[1]),sc=Math.min(1,260/Math.max(sw,sh));
+  const w=Math.max(1,Math.round(sw*sc)),h=Math.max(1,Math.round(sh*sc));
+  const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.drawImage(im,im.naturalWidth*cr[0],im.naturalHeight*cr[1],sw,sh,0,0,w,h);
   const id=cx.getImageData(0,0,w,h),p=id.data,N=w*h;
   const whiteish=i=>{const r=p[i*4],g=p[i*4+1],b=p[i*4+2];return p[i*4+3]>0&&Math.min(r,g,b)>214&&Math.max(r,g,b)-Math.min(r,g,b)<30};
   const seen=new Uint8Array(N),st=[];
@@ -132,7 +143,7 @@ async function cleanLogo(src,dark){
   while(st.length){const i=st.pop();if(seen[i])continue;seen[i]=1;if(!whiteish(i))continue;
     const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const m=Math.min(r,g,b);p[i*4+3]=m>238?0:Math.round(p[i*4+3]*(238-m)/24);
     const x=i%w,y=(i/w)|0;if(x>0)st.push(i-1);if(x<w-1)st.push(i+1);if(y>0)st.push(i-w);if(y<h-1)st.push(i+w)}
-  if(dark&&!/McLarenF1Team|UOP_Shadow/.test(src))for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
+  if(dark&&!/UOP_Shadow/.test(src))for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
     if(lum<70&&mx-mn<40){p[i*4]=232;p[i*4+1]=233;p[i*4+2]=237}}
   cx.putImageData(id,0,0);return LOGO_CACHE[key]=cv.toDataURL('image/png');
 }
@@ -161,7 +172,7 @@ const GCACHE={};
 function generate(mode,diff,dateStr){
   const key=dateStr+'|'+mode+'|'+diff;if(GCACHE[key])return GCACHE[key];
   const rng=mulberry(hash(key+'|pitgrid1'));
-  const pool=CATS[mode].filter(c=>c.lv<=diff);
+  const pool=CATS[mode].filter(c=>c.lv<=diff&&(!c.since||dateStr.startsWith('free')||dateStr>=c.since));
   for(let k=0;k<12000;k++){
     const sh=shuffle(pool.slice(),rng),pick=[],gs=new Set();
     for(const c of sh){if(pick.length===6)break;if(c.g&&gs.has(c.g))continue;pick.push(c);if(c.g)gs.add(c.g)}
