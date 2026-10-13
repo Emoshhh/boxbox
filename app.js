@@ -77,7 +77,7 @@ function buildCats(mode){
     ['FER','MCL','MER','RBR','WIL','REN','SAU','TRO'].forEach(k=>team(k,1));
     ['ALP','AMR','HAA','JOR','FIN','TOY','BAR','MIN','JAG','LOT'].forEach(k=>team(k,2));
     ['BRW','CAD','AUD','MAN','CAT','HRT','ARR','BEN','PRO','SPY','SUP'].filter(k=>TEAM[k]).forEach(k=>team(k,3));
-    ach('era00',2,'2000-09 Arası Çıkış','cal','era',d=>d.first<2010);
+    ach('era00',2,'2010 Öncesi Çıkış','cal','era',d=>d.first<2010,'İlk yarışı 2009 ve öncesi');
     ach('era10',2,'2010-19 Arası Çıkış','cal','era',d=>d.first>=2010&&d.first<2020);
     ach('era20',2,'2020 ve Sonrası Çıkış','cal','era',d=>d.first>=2020);
     ach('w5',2,'5+ Galibiyet','stars','win',d=>d.wins>=5);
