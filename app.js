@@ -146,10 +146,10 @@ async function cleanLogo(src,dark){
   while(st.length){const i=st.pop();if(seen[i])continue;seen[i]=1;if(!whiteish(i))continue;
     const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const m=Math.min(r,g,b);p[i*4+3]=m>238?0:Math.round(p[i*4+3]*(238-m)/24);
     const x=i%w,y=(i/w)|0;if(x>0)st.push(i-1);if(x<w-1)st.push(i+1);if(y>0)st.push(i-w);if(y<h-1)st.push(i+w)}
-  if(dark&&!/UOP_Shadow|Minardi_F1_Team/.test(src))for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
+  if(dark&&!/UOP_Shadow|Minardi_F1_Team|Scuderia_Ferrari/.test(src))for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
     if(lum<70&&mx-mn<40){p[i*4]=232;p[i*4+1]=233;p[i*4+2]=237}}
   // Çok koyu renkli logolarda (lacivert, koyu yeşil) koyu tonları aynı renkte açık tona çek
-  if(dark&&!/UOP_Shadow|Minardi_F1_Team/.test(src)){let sum=0,n=0;for(let i=0;i<N;i++){if(p[i*4+3]>128){sum+=.299*p[i*4]+.587*p[i*4+1]+.114*p[i*4+2];n++}}
+  if(dark&&!/UOP_Shadow|Minardi_F1_Team|Scuderia_Ferrari/.test(src)){let sum=0,n=0;for(let i=0;i<N;i++){if(p[i*4+3]>128){sum+=.299*p[i*4]+.587*p[i*4+1]+.114*p[i*4+2];n++}}
     if(n&&sum/n<95)for(let i=0;i<N;i++){if(!p[i*4+3])continue;let r=p[i*4]/255,g=p[i*4+1]/255,b=p[i*4+2]/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let l=(mx+mn)/2;if(l>=.62)continue;
       let h=0,sat=0;const dd=mx-mn;if(dd){sat=l>.5?dd/(2-mx-mn):dd/(mx+mn);h=mx===r?(g-b)/dd+(g<b?6:0):mx===g?(b-r)/dd+2:(r-g)/dd+4;h/=6}
       l=.62;const q=l<.5?l*(1+sat):l+sat-l*sat,pp=2*l-q;const f=t=>{t<0&&(t+=1);t>1&&(t-=1);return t<1/6?pp+(q-pp)*6*t:t<1/2?q:t<2/3?pp+(q-pp)*(2/3-t)*6:pp};
