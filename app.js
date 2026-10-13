@@ -100,6 +100,52 @@ function buildCats(mode){
 }
 CATS.all=buildCats('all');CATS.mod=buildCats('mod');
 
+
+// ---------- theme + logos ----------
+const THEMES=['system','light','dark'];
+const ICONS={system:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',light:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',dark:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>'};
+const TLABEL={system:'Tema: cihaza göre',light:'Tema: açık',dark:'Tema: koyu'};
+let themePref='system';try{const t=localStorage.getItem('boxbox:theme');if(THEMES.includes(t))themePref=t}catch(e){}
+const mq=window.matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=>themePref==='dark'||(themePref==='system'&&mq.matches);
+function applyTheme(){
+  if(themePref==='system')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=themePref;
+  const b=$('themeBtn');b.innerHTML=ICONS[themePref];b.setAttribute('aria-label',TLABEL[themePref]);b.title=TLABEL[themePref];
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=isDark()?'#121316':'#eceef1';
+  processLogos();
+}
+$('themeBtn').onclick=()=>{themePref=THEMES[(THEMES.indexOf(themePref)+1)%3];try{localStorage.setItem('boxbox:theme',themePref)}catch(e){}applyTheme();toast(TLABEL[themePref])};
+mq.addEventListener&&mq.addEventListener('change',()=>{if(themePref==='system')applyTheme()});
+
+const LOGO_CACHE={},LOGO_IMG={};
+function loadImg(src){if(!LOGO_IMG[src])LOGO_IMG[src]=new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=src});return LOGO_IMG[src]}
+// Removes the white backdrop around a logo and adapts near-black / near-white parts to the theme.
+async function cleanLogo(src,dark){
+  const key=src+'|'+(dark?1:0);if(LOGO_CACHE[key])return LOGO_CACHE[key];
+  const im=await loadImg(src);const sc=Math.min(1,240/Math.max(im.naturalWidth,im.naturalHeight));
+  const w=Math.max(1,Math.round(im.naturalWidth*sc)),h=Math.max(1,Math.round(im.naturalHeight*sc));
+  const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.drawImage(im,0,0,w,h);
+  const id=cx.getImageData(0,0,w,h),p=id.data,N=w*h;
+  const whiteish=i=>{const r=p[i*4],g=p[i*4+1],b=p[i*4+2];return p[i*4+3]>0&&Math.min(r,g,b)>214&&Math.max(r,g,b)-Math.min(r,g,b)<30};
+  const seen=new Uint8Array(N),st=[];
+  for(let x=0;x<w;x++){st.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){st.push(y*w,y*w+w-1)}
+  while(st.length){const i=st.pop();if(seen[i])continue;seen[i]=1;if(!whiteish(i))continue;
+    const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const m=Math.min(r,g,b);p[i*4+3]=m>238?0:Math.round(p[i*4+3]*(238-m)/24);
+    const x=i%w,y=(i/w)|0;if(x>0)st.push(i-1);if(x<w-1)st.push(i+1);if(y>0)st.push(i-w);if(y<h-1)st.push(i+w)}
+  for(let i=0;i<N;i++){const a=p[i*4+3];if(!a)continue;const r=p[i*4],g=p[i*4+1],b=p[i*4+2];const mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=.299*r+.587*g+.114*b;
+    if(dark&&lum<70&&mx-mn<40){p[i*4]=232;p[i*4+1]=233;p[i*4+2]=237}}
+  cx.putImageData(id,0,0);return LOGO_CACHE[key]=cv.toDataURL('image/png');
+}
+function processLogos(){
+  const dark=isDark();
+  document.querySelectorAll('.logochip img[data-logo]').forEach(img=>{
+    const src=img.dataset.logo;img.classList.remove('ready');
+    cleanLogo(src,dark).then(u=>{img.src=u;img.classList.add('ready')}).catch(()=>{
+      const chip=img.parentNode;if(!chip||!chip.dataset)return;const col=chip.dataset.color;
+      chip.outerHTML=`<div class="badge" style="background:${col};color:${textOn(col)}">${chip.dataset.badge}</div>`});
+  });
+}
+
 // ---------- generation ----------
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function hash(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -262,7 +308,7 @@ function persist(){S.s=S.c.filter(x=>x!=null).length;if(date!==todayStr())S.live
 function headHTML(c){
   let top;
   if(c.type==='nat')top=`<img class="flagimg" src="${flagUrl(c.iso)}" alt="" loading="lazy">`;
-  else if(c.type==='team')top=c.logo?`<div class="logochip"><img src="${c.logo}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.outerHTML='<div class=&quot;badge&quot; style=&quot;background:${c.color};color:${textOn(c.color)}&quot;>${c.code}</div>'"></div>`:`<div class="badge" style="background:${c.color};color:${textOn(c.color)}">${c.code}</div>`;
+  else if(c.type==='team')top=c.logo?`<div class="logochip" data-badge="${c.code}" data-color="${c.color}"><img data-logo="${c.logo}" alt=""></div>`:`<div class="badge" style="background:${c.color};color:${textOn(c.color)}">${c.code}</div>`;
   else top=`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${IC[c.icon]}</svg>`;
   return `${top}<div class="lbl">${c.label}</div>${c.sub?`<div class="sub">${c.sub}</div>`:''}`;
 }
@@ -296,6 +342,7 @@ function renderGame(){
       g.appendChild(b);
     });
   });
+  processLogos();
   $('gLeft').textContent=S.left;$('giveUp').hidden=!!S.done;
   const f=S.c.filter(x=>x!=null).length;$('end').hidden=!S.done;
   if(S.done){$('score').innerHTML=`${f}<small> / 9</small>`;
@@ -453,6 +500,6 @@ window.addEventListener('hashchange',route);
 // day rollover while open
 setInterval(()=>{const t=todayStr();if(t!==window.__pgDay){const was=window.__pgDay;window.__pgDay=t;if(was&&date===was&&!S.done){}renderPill();if(view==='oyna')renderTodayChips()}},60000);
 window.__pgDay=todayStr();
-loadGame();renderAll();
+applyTheme();loadGame();renderAll();
 initCloud();
 })();
