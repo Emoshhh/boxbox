@@ -216,6 +216,9 @@ const fmtDate=s=>{const d=parseYmd(s);return `${d.getDate()} ${AY[d.getMonth()]}
 // days: { 'YYYY-MM-DD': { 'all-2': {s:score, c:[ids], live:1, done:1, left:n} } }
 const LS='boxbox:v1';
 let ST={days:{}};
+// Skor sıfırlama: bu değer değişince tüm tarayıcılardaki yerel sonuçlar silinir.
+const DATA_EPOCH='2026-10-14';
+try{if(localStorage.getItem('boxbox:epoch')!==DATA_EPOCH){localStorage.removeItem(LS);localStorage.setItem('boxbox:epoch',DATA_EPOCH)}}catch(e){}
 try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.days)ST=s}catch(e){}
 const saveLocal=()=>{try{localStorage.setItem(LS,JSON.stringify(ST))}catch(e){}};
 const gkey=(mode,diff)=>mode+'-'+diff;
