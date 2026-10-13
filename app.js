@@ -372,7 +372,7 @@ function renderGame(){
   processLogos();
   $('gLeft').textContent=S.left;$('giveUp').hidden=!!S.done;
   const f=S.c.filter(x=>x!=null).length;$('end').hidden=!S.done;
-  $('dayNav').hidden=free;$('mcal').hidden=free;if(S.done&&!free)renderMonthCal();
+  $('dayNav').hidden=free;$('mcal').hidden=free;if(!free)updateDayNav();if(S.done&&!free)renderMonthCal();
   if(S.done){$('score').innerHTML=`${f}<small> / 9</small>`;
     $('endMsg').textContent=f===9?'Kusursuz tur. Grid tamam.':f>=6?'Podyumluk sonuç.':f>=3?'Puanlara girdin.':'Zor bir yarıştı.';
     if(free){$('nextGame').hidden=false;$('nextGame').textContent='Yeni grid'}
@@ -481,8 +481,9 @@ function renderMonthCal(){
     b.setAttribute('aria-label',`${d} ${AYF[m]}${st==='done'?', bitirildi, '+gm.s+' / 9':st==='prog'?', yarım kaldı':st==='open'?', oynanmadı':''}`);
     if(off)b.disabled=true;else b.onclick=()=>goDate(dt);
     g.appendChild(b)}
-  $('prevDay').disabled=addDays(date,-1)<ymd(LAUNCH);$('nextDay').disabled=date>=t;
+  updateDayNav();
 }
+function updateDayNav(){$('prevDay').disabled=addDays(date,-1)<ymd(LAUNCH);$('nextDay').disabled=date>=todayStr()}
 $('prevDay').onclick=()=>{const d=addDays(date,-1);if(d>=ymd(LAUNCH))goDate(d)};
 $('nextDay').onclick=()=>{const d=addDays(date,1);if(d<=todayStr())goDate(d)};
 $('mcPrev').onclick=()=>{calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()-1,1);renderMonthCal()};
