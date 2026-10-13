@@ -372,6 +372,7 @@ function renderGame(){
   processLogos();
   $('gLeft').textContent=S.left;$('giveUp').hidden=!!S.done;
   const f=S.c.filter(x=>x!=null).length;$('end').hidden=!S.done;
+  $('dayNav').hidden=free;$('mcal').hidden=free;if(S.done&&!free)renderMonthCal();
   if(S.done){$('score').innerHTML=`${f}<small> / 9</small>`;
     $('endMsg').textContent=f===9?'Kusursuz tur. Grid tamam.':f>=6?'Podyumluk sonuç.':f>=3?'Puanlara girdin.':'Zor bir yarıştı.';
     if(free){$('nextGame').hidden=false;$('nextGame').textContent='Yeni grid'}
@@ -458,6 +459,34 @@ $('nextGame').onclick=()=>{if(free){freeSeed=0;loadGame();renderGame();return}co
 document.querySelectorAll('[data-fmode]').forEach(b=>b.onclick=()=>{freeMode=b.dataset.fmode;freeSeed=0;loadGame();renderGame()});
 $('newFree').onclick=()=>{freeSeed=0;loadGame();renderGame()};
 document.querySelectorAll('[data-diff]').forEach(b=>b.onclick=()=>{diff=+b.dataset.diff;savePrefs();loadGame();renderGame()});
+// ---------- month calendar ----------
+let calMonth=null;
+const AYF=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+function goDate(dt){date=dt;calMonth=null;loadGame();renderGame();window.scrollTo({top:0,behavior:'smooth'})}
+function renderMonthCal(){
+  const t=todayStr(),sel=parseYmd(date);
+  if(!calMonth)calMonth=new Date(sel.getFullYear(),sel.getMonth(),1);
+  const y=calMonth.getFullYear(),m=calMonth.getMonth();
+  $('mcTitle').textContent=`${AYF[m]} ${y}`;
+  $('mcPrev').disabled=new Date(y,m,1)<=new Date(LAUNCH.getFullYear(),LAUNCH.getMonth(),1);
+  const tt=parseYmd(t);$('mcNext').disabled=new Date(y,m+1,1)>tt;
+  const g=$('mcGrid');g.innerHTML=['Pt','Sa','Ça','Pe','Cu','Ct','Pz'].map(x=>`<div class="mc-dh">${x}</div>`).join('');
+  const first=new Date(y,m,1),lead=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+  for(let i=0;i<lead;i++)g.insertAdjacentHTML('beforeend','<div class="mc-d blank"></div>');
+  for(let d=1;d<=days;d++){const dt=ymd(new Date(y,m,d));const b=document.createElement('button');b.type='button';
+    const off=parseYmd(dt)>tt||parseYmd(dt)<LAUNCH;const gm=off?null:getGame(dt,mode,dailyDiff(dt));
+    const st=off?'off':gm&&gm.done?'done':gm?'prog':'open';
+    b.className='mc-d '+st+(dt===date?' sel':'');
+    b.innerHTML=`${d}${st==='done'?`<small>${gm.s}/9</small>`:st==='prog'?'<small>…</small>':''}`;
+    b.setAttribute('aria-label',`${d} ${AYF[m]}${st==='done'?', bitirildi, '+gm.s+' / 9':st==='prog'?', yarım kaldı':st==='open'?', oynanmadı':''}`);
+    if(off)b.disabled=true;else b.onclick=()=>goDate(dt);
+    g.appendChild(b)}
+  $('prevDay').disabled=addDays(date,-1)<ymd(LAUNCH);$('nextDay').disabled=date>=t;
+}
+$('prevDay').onclick=()=>{const d=addDays(date,-1);if(d>=ymd(LAUNCH))goDate(d)};
+$('nextDay').onclick=()=>{const d=addDays(date,1);if(d<=todayStr())goDate(d)};
+$('mcPrev').onclick=()=>{calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()-1,1);renderMonthCal()};
+$('mcNext').onclick=()=>{calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+1,1);renderMonthCal()};
 $('share').onclick=()=>{
   const f=S.c.filter(x=>x!=null).length;let txt=(free?`Box Box Serbest · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`:`Box Box #${dayNum(date)} · ${MN[mode]} (${DN[diff]})  ${f}/9\n`);
   for(let r=0;r<3;r++)txt+=[0,1,2].map(c=>S.c[r*3+c]!=null?'🟩':'⬛').join('')+'\n';
