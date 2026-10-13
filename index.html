@@ -189,6 +189,12 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 @keyframes sh{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);background:var(--toastbg);border:1px solid var(--line);color:var(--toastfg);padding:11px 16px;border-radius:12px;font:600 14px/1.3 var(--display);z-index:40;max-width:calc(100% - 32px);text-align:center}
 .toast.bad{border-color:var(--bad)}
+.lastrace{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.lastrace svg{width:22px;height:22px;flex:0 0 auto;fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lastrace>div{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.lr-k{font:700 11px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lr-v{font:700 15px/1.2 var(--display);color:var(--fg)}
+.lr-d{font:600 12px/1 var(--label);letter-spacing:.06em;color:var(--muted);white-space:nowrap}
 .foot{font:500 12px/1.5 var(--label);color:var(--dim);text-align:center;letter-spacing:.03em;margin:0}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}}
 .themebtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--cell);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fg);flex:0 0 auto}
@@ -340,10 +346,14 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
     </div>
     <div class="card">
       <div class="eyebrow">Kaynak</div>
-      <p class="hint">Pilot ve yarış verileri: <a class="lnk" href="https://www.statsf1.com/en/default.aspx" target="_blank" rel="noopener">STATS F1</a>, 2026 Singapur Grand Prix dahil. Takım logoları Wikimedia Commons ve Wikipedia üzerinden gösterilir ve ilgili takımların tescilli markalarıdır. Bayrak görselleri: flag-icons (MIT lisansı).</p>
+      <p class="hint">Pilot ve yarış verileri: <a class="lnk" href="https://www.statsf1.com/en/default.aspx" target="_blank" rel="noopener">STATS F1</a>. Takım logoları Wikimedia Commons ve Wikipedia üzerinden gösterilir ve ilgili takımların tescilli markalarıdır. Bayrak görselleri: flag-icons (MIT lisansı).</p>
     </div>
   </section>
-  <p class="foot">Box Box · veri: STATS F1 · 2026 Singapur GP'ye kadar</p>
+  <div class="lastrace" aria-label="Veri güncelliği">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h12l-2 4 2 4H5"/></svg>
+    <div><span class="lr-k">En güncel yarış</span><span class="lr-v">2026 Singapur Grand Prix</span></div>
+    <span class="lr-d">11 Ekim 2026</span>
+  </div>
 </main>
 
 <div class="sheet" id="sheet" hidden>
@@ -374,9 +384,9 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 
 
 
-<script src="data.js?v=20261013i"></script>
-<script src="config.js?v=20261013i"></script>
+<script src="data.js?v=20261013j"></script>
+<script src="config.js?v=20261013j"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="app.js?v=20261013i"></script>
+<script src="app.js?v=20261013j"></script>
 </body>
 </html>
