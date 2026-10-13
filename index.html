@@ -59,7 +59,14 @@ main{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;d
 .seg.alt button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
 .seg button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .controls{display:flex;flex-direction:column;gap:8px}
-.gamehead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.gamehead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.gh-left{display:flex;flex-direction:column;gap:7px;min-width:0}
+.gh-sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.diffpill{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:var(--sunk);font:700 12.5px/1 var(--display);letter-spacing:.1em;text-transform:uppercase}
+.diffpill .bars{display:flex;gap:2px;align-items:flex-end}
+.diffpill .bars i{width:4px;border-radius:1px;border:1px solid var(--fg);background:transparent}
+.diffpill .bars i:nth-child(1){height:6px}.diffpill .bars i:nth-child(2){height:9px}.diffpill .bars i:nth-child(3){height:12px}
+.diffpill .bars i.on{background:var(--fg)}
 .gamehead .t{font:900 20px/1 var(--display);letter-spacing:.02em}
 .gamehead .t span{color:var(--red)}
 .gamehead .d{font:600 13px/1 var(--label);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
@@ -136,7 +143,7 @@ main{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 48px;d
 .aday{display:grid;grid-template-columns:76px 1fr;gap:8px;align-items:center;background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:10px}
 .aday .ad{font:900 16px/1 var(--display)}
 .aday .ad small{display:block;font:600 11px/1.2 var(--label);letter-spacing:.06em;color:var(--muted);margin-top:4px;text-transform:uppercase}
-.aday .chips{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.aday .chips{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .aday .chip{padding:8px 2px;font-size:12px}
 .ahead{display:grid;grid-template-columns:76px 1fr;gap:8px;padding:0 10px}
 .ahead .chips{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;font:700 11px/1 var(--label);letter-spacing:.08em;color:var(--muted);text-transform:uppercase;text-align:center}
@@ -235,17 +242,17 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
             <button data-fmode="all" aria-pressed="true">Tüm Zamanlar</button>
             <button data-fmode="mod" aria-pressed="false">2000 Sonrası</button>
           </div>
+          <div class="seg alt" role="group" aria-label="Zorluk">
+            <button data-diff="1" aria-pressed="false">Basit</button>
+            <button data-diff="2" aria-pressed="true">Orta</button>
+            <button data-diff="3" aria-pressed="false">Zor</button>
+          </div>
           <p class="hint">Test modu: her seferinde rastgele grid. Sonuçlar kaydedilmez, seriye ve sıralamaya girmez.</p>
-        </div>
-        <div class="seg alt" role="group" aria-label="Zorluk">
-          <button data-diff="1" aria-pressed="false">Basit</button>
-          <button data-diff="2" aria-pressed="true">Orta</button>
-          <button data-diff="3" aria-pressed="false">Zor</button>
         </div>
       </div>
       <div class="gamehead">
-        <div><div class="t" id="gTitle"></div></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="tag arch" id="archTag" hidden>Arşiv · seriye sayılmaz</span><span class="d" id="gDate"></span></div>
+        <div class="gh-left"><div class="t" id="gTitle"></div><div class="gh-sub"><span class="d" id="gDate"></span><span class="tag arch" id="archTag" hidden>Arşiv · seriye sayılmaz</span></div></div>
+        <div class="diffpill" id="diffPill"></div>
       </div>
       <div class="grid" id="grid"></div>
       <div class="bar">
@@ -270,7 +277,7 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
   <section class="view" id="v-arsiv" hidden>
     <div><div class="eyebrow">Arşiv</div><h1 class="h2">Geçmiş günlerin gridleri</h1></div>
     <p class="p">Kaçırdığın günleri buradan oynayabilirsin. Arşivde oynanan gridler istatistiğe yazılır ama günlük seriye sayılmaz.</p>
-    <div class="ahead"><span></span><div class="chips"><span>Tüm Zamanlar · B O Z</span><span>2000+ · B O Z</span></div></div>
+    <div class="ahead"><span></span><div class="chips"><span>Tüm Zamanlar</span><span>2000 Sonrası</span></div></div>
     <div class="arch" id="archList"></div>
   </section>
 
@@ -306,7 +313,8 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
     <div><div class="eyebrow">Nasıl oynanır</div><h1 class="h2">Satır ve sütunun kesiştiği pilotu bul</h1></div>
     <div class="card">
       <ol class="rules">
-        <li>Her gün iki dönemde (Tüm Zamanlar ve 2000 Sonrası) ve üç zorlukta yeni bir 3x3 grid açılır. Gridler herkes için aynıdır.</li>
+        <li>Her gün iki dönemde (Tüm Zamanlar ve 2000 Sonrası) birer 3x3 grid açılır. Gridler herkes için aynıdır.</li>
+        <li>Günün zorluğu gridin sağ üstünde yazar. Hafta başı Basit, hafta ortası Orta, hafta sonu Zor: Pzt–Sa Basit, Ça–Cu Orta, Ct–Pz Zor.</li>
         <li>Bir kutuya dokun. O kutunun satırındaki ve sütunundaki şartların ikisini de sağlayan bir pilot yaz, listeden seç.</li>
         <li>Her tahmin bir hak harcar. Bir pilotu aynı gridde yalnızca bir kez kullanabilirsin.</li>
         <li>O gün en az bir günlük gridi bitirirsen serin bir gün uzar. Bir günü atlarsan seri sıfırlanır.</li>
@@ -362,9 +370,9 @@ a.lnk{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px
 
 
 
-<script src="data.js?v=20261013g"></script>
-<script src="config.js?v=20261013g"></script>
+<script src="data.js?v=20261013h"></script>
+<script src="config.js?v=20261013h"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="app.js?v=20261013g"></script>
+<script src="app.js?v=20261013h"></script>
 </body>
 </html>

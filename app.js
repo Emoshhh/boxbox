@@ -188,6 +188,7 @@ const todayStr=()=>TZF.format(new Date());
 const dayNum=s=>Math.round((parseYmd(s)-LAUNCH)/864e5)+1;
 const addDays=(s,n)=>{const d=parseYmd(s);d.setDate(d.getDate()+n);return ymd(d)};
 const AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const dailyDiff=dt=>[1,1,2,2,2,3,3][(parseYmd(dt).getDay()+6)%7];
 const fmtDate=s=>{const d=parseYmd(s);return `${d.getDate()} ${AY[d.getMonth()]}`};
 
 // ---------- storage ----------
@@ -300,6 +301,7 @@ const savePrefs=()=>{try{localStorage.setItem('boxbox:prefs',JSON.stringify({mod
 
 function loadGame(){
   if(free){mode=freeMode;if(!freeSeed)freeSeed=(Math.random()*1e9)|0;G=generate(mode,diff,'free-'+freeSeed);S={c:Array(9).fill(null),left:GUESSES[diff],done:0,s:0,live:0};return}
+  diff=dailyDiff(date);
   G=generate(mode,diff,date);
   const g=getGame(date,mode,diff);
   S=g?JSON.parse(JSON.stringify(g)):{c:Array(9).fill(null),left:GUESSES[diff],done:0,s:0,live:date===todayStr()?1:0};
@@ -324,7 +326,8 @@ function renderGame(){
   document.querySelectorAll('[data-diff]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.diff===diff)));
   const isToday=date===todayStr();
   $('gTitle').innerHTML=free?`Serbest <span>·</span> ${MN[mode]}`:`Grid <span>#${dayNum(date)}</span> · ${MN[mode]}`;
-  $('gDate').textContent=free?'Test · '+DN[diff]:fmtDate(date)+' · '+DN[diff];
+  $('gDate').textContent=free?'Test modu':fmtDate(date);
+  $('diffPill').innerHTML=`<span class="bars" aria-hidden="true">${[1,2,3].map(i=>`<i class="${i<=diff?'on':''}"></i>`).join('')}</span>${DN[diff]}`;$('diffPill').setAttribute('aria-label','Zorluk: '+DN[diff]);
   $('archTag').hidden=isToday||free;$('backToday').hidden=isToday||free;
   const P=POOLS[mode],g=$('grid');g.innerHTML='';
   const corner=document.createElement('div');corner.className='h corner';
@@ -351,17 +354,17 @@ function renderGame(){
   if(S.done){$('score').innerHTML=`${f}<small> / 9</small>`;
     $('endMsg').textContent=f===9?'Kusursuz tur. Grid tamam.':f>=6?'Podyumluk sonuç.':f>=3?'Puanlara girdin.':'Zor bir yarıştı.';
     if(free){$('nextGame').hidden=false;$('nextGame').textContent='Yeni grid'}
-    else{const nx=nextOpen();$('nextGame').hidden=!nx;if(nx)$('nextGame').textContent=`Sıradaki: ${MS[nx[0]]} ${DN[nx[1]]}`}}
+    else{const nx=nextOpen();$('nextGame').hidden=!nx;if(nx)$('nextGame').textContent=`Sıradaki: ${MN[nx]}`}}
   renderTodayChips();
 }
-function nextOpen(){const t=date;for(const m of ['all','mod'])for(const d of [1,2,3]){const g=getGame(t,m,d);if(!(g&&g.done)&&!(m===mode&&d===diff))return [m,d]}return null}
+function nextOpen(){if(date!==todayStr())return null;const m=mode==='all'?'mod':'all';const g=getGame(date,m,dailyDiff(date));return g&&g.done?null:m}
 function chipHTML(g){if(!g)return '–';if(g.done)return `${g.s}/9`;return `${g.c.filter(x=>x!=null).length}/9<small>devam</small>`}
 function chipCls(g){return 'chip'+(g&&g.done?(g.s===9?' done perfect':' done'):g?' prog':'')}
 function renderTodayChips(){
-  const t=todayStr(),el=$('todayChips');el.innerHTML='<span></span>'+[1,2,3].map(d=>`<span class="rl" style="text-align:center">${DN[d]}</span>`).join('');
-  for(const m of ['all','mod']){el.insertAdjacentHTML('beforeend',`<span class="rl">${MS[m]}</span>`);
-    for(const d of [1,2,3]){const g=getGame(t,m,d);const b=document.createElement('button');b.className=chipCls(g);b.innerHTML=chipHTML(g);b.setAttribute('aria-label',`${MN[m]} ${DN[d]}`);
-      b.onclick=()=>{diff=d;date=t;savePrefs();openPlay(m==='all'?'tum':'2000')};el.appendChild(b)}}
+  const t=todayStr(),el=$('todayChips'),d=dailyDiff(t);el.innerHTML='';el.style.gridTemplateColumns='1fr 1fr';
+  for(const m of ['all','mod']){const g=getGame(t,m,d);const b=document.createElement('button');b.className=chipCls(g);
+    b.innerHTML=`${MN[m]}<small>${g?(g.done?g.s+' / 9':g.c.filter(x=>x!=null).length+' / 9 · devam'):'oynanmadı'}</small>`;
+    b.onclick=()=>{date=t;openPlay(m==='all'?'tum':'2000')};el.appendChild(b)}
 }
 function renderSyncNote(){
   const n=$('syncNote');
@@ -418,12 +421,12 @@ $('giveUp').onclick=()=>{S.done=1;persist();renderGame();renderPill()};
 $('backToday').onclick=()=>{date=todayStr();loadGame();renderGame()};
 function openPlay(p,keepDate){if(!keepDate)date=todayStr();forceReload=true;go(p)}
 let forceReload=false;
-$('nextGame').onclick=()=>{if(free){freeSeed=0;loadGame();renderGame();return}const nx=nextOpen();if(!nx)return;diff=nx[1];savePrefs();if(nx[0]!==mode){openPlay(nx[0]==='all'?'tum':'2000');return}loadGame();renderGame();window.scrollTo({top:0,behavior:'smooth'})};
+$('nextGame').onclick=()=>{if(free){freeSeed=0;loadGame();renderGame();return}const nx=nextOpen();if(!nx)return;openPlay(nx==='all'?'tum':'2000')};
 document.querySelectorAll('[data-fmode]').forEach(b=>b.onclick=()=>{freeMode=b.dataset.fmode;freeSeed=0;loadGame();renderGame()});
 $('newFree').onclick=()=>{freeSeed=0;loadGame();renderGame()};
 document.querySelectorAll('[data-diff]').forEach(b=>b.onclick=()=>{diff=+b.dataset.diff;savePrefs();loadGame();renderGame()});
 $('share').onclick=()=>{
-  const f=S.c.filter(x=>x!=null).length;let txt=(free?`Box Box Serbest · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`:`Box Box #${dayNum(date)} · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`);
+  const f=S.c.filter(x=>x!=null).length;let txt=(free?`Box Box Serbest · ${MN[mode]} · ${DN[diff]}  ${f}/9\n`:`Box Box #${dayNum(date)} · ${MN[mode]} (${DN[diff]})  ${f}/9\n`);
   for(let r=0;r<3;r++)txt+=[0,1,2].map(c=>S.c[r*3+c]!=null?'🟩':'⬛').join('')+'\n';
   const st=computeStats();if(st.streak>1)txt+=`Seri: ${st.streak} gün`;
   try{navigator.clipboard.writeText(txt.trim()).then(()=>toast('Sonuç kopyalandı'),()=>toast(txt.trim()))}catch(e){toast(txt.trim())}
@@ -436,9 +439,9 @@ function renderArchive(){
     const row=document.createElement('div');row.className='aday';
     row.innerHTML=`<div class="ad">#${dayNum(dt)}<small>${fmtDate(dt)}${dt===t?' · bugün':''}</small></div><div class="chips"></div>`;
     const ch=row.querySelector('.chips');
-    for(const m of ['all','mod'])for(const d of [1,2,3]){const g=getGame(dt,m,d);const b=document.createElement('button');b.className=chipCls(g);
-      b.textContent=g?(g.done?g.s:'…'):DN[d][0];b.setAttribute('aria-label',`${fmtDate(dt)} ${MN[m]} ${DN[d]}${g&&g.done?', '+g.s+' / 9':''}`);
-      b.onclick=()=>{diff=d;date=dt;savePrefs();openPlay(m==='all'?'tum':'2000',true)};ch.appendChild(b)}
+    {const d=dailyDiff(dt);for(const m of ['all','mod']){const g=getGame(dt,m,d);const b=document.createElement('button');b.className=chipCls(g);
+      b.innerHTML=(g?(g.done?g.s+' / 9':'devam'):'oyna')+`<small>${DN[d]}</small>`;b.setAttribute('aria-label',`${fmtDate(dt)} ${MN[m]} ${DN[d]}${g&&g.done?', '+g.s+' / 9':''}`);
+      b.onclick=()=>{date=dt;openPlay(m==='all'?'tum':'2000',true)};ch.appendChild(b)}}
     el.appendChild(row);
   }
 }
@@ -461,8 +464,8 @@ function renderStats(){
     el.className='day'+(any?' on':'')+(s.perfectDays.has(dt)?' full':'')+(dt===t?' today':'');
     el.innerHTML=`<span class="dn">${parseYmd(dt).getDate()}</span><span class="ds">${any?sum:''}</span>`;
     el.title=`${fmtDate(dt)}${any?': '+sum+' kutu':''}`;cal.appendChild(el)}
-  let h='<tr><th>Mod</th><th style="text-align:left">Zorluk</th><th>Oynanan</th><th>Ort.</th><th>9/9</th></tr>';
-  for(const m of ['all','mod'])for(const d of [1,2,3]){const p=s.per[gkey(m,d)]||{n:0,sum:0,perfect:0};h+=`<tr><td style="color:var(--fg);width:auto">${MS[m]}</td><td class="nm">${DN[d]}</td><td>${p.n}</td><td>${p.n?(p.sum/p.n).toFixed(1):'–'}</td><td>${p.perfect}</td></tr>`}
+  let h='<tr><th style="text-align:left">Mod</th><th>Oynanan</th><th>Ort.</th><th>9/9</th></tr>';
+  for(const m of ['all','mod']){const p={n:0,sum:0,perfect:0};for(const d of [1,2,3]){const q=s.per[gkey(m,d)];if(q){p.n+=q.n;p.sum+=q.sum;p.perfect+=q.perfect}}h+=`<tr><td style="color:var(--fg);width:auto">${MN[m]}</td><td>${p.n}</td><td>${p.n?(p.sum/p.n).toFixed(1):'–'}</td><td>${p.perfect}</td></tr>`}
   $('modeTable').innerHTML=h;
 }
 
